@@ -11,8 +11,8 @@ import java.util.UUID;
  */
 public record TransactionEvent(
         UUID transactionId,
-        Client from,
-        Client to,
+        ClientDto from,
+        ClientDto to,
         BigDecimal amount,
         Currency currency,
         Instant createdAt

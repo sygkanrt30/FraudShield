@@ -1,6 +1,31 @@
 spring:
   application:
     name: ingress-service
+  datasource:
+    url: jdbc:p6spy:postgresql://localhost:5436/transaction_db
+    username: user
+    password: 6758
+    driver-class-name: com.p6spy.engine.spy.P6SpyDriver
+  flyway:
+    locations: classpath:db/migration
+    encoding: UTF-8
+    validate-on-migrate: false
+    baseline-version: 1
+    baseline-on-migrate: true
+    loggers: slf4j
+  jpa:
+    open-in-view: false
+#    show-sql: true
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+        ddl-auto: validate
+        transaction:
+          jta:
+            platform: none
+    database: postgresql
   kafka:
     bootstrap-servers: localhost:9092
     producer:
@@ -17,6 +42,9 @@ spring:
 
 app:
   kafka:
+    resend:
+      fixedDelay: 30
+      initialDelay: 30
     topics:
       raw-transactions: raw-transactions
 

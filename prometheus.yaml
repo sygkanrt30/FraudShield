@@ -6,12 +6,12 @@ scrape_configs:
   - job_name: 'ingress-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['ingress-service:8081']
-
-  - job_name: 'node-exporter'
-    static_configs:
-      - targets: ['host.docker.internal:9100']
+      - targets: [ 'ingress-service:8081' ]
 
   - job_name: 'kafka-exporter'
     static_configs:
       - targets: [ 'host.docker.internal:9308' ]
+
+  - job_name: 'postgres-exporter'
+    static_configs:
+      - targets: [ 'host.docker.internal:9187' ]

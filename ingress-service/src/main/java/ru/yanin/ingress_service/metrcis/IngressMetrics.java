@@ -21,25 +21,21 @@ public class IngressMetrics {
 
     public void recordRequestStart() {
         activeRequests.increment();
-        countersMap.get(Counters.REQUESTS_TOTAL.name()).increment();
+        countersMap.get(Counters.TRANSACTIONS_RECEIVED.name()).increment();
     }
 
     public void recordRequestEnd(boolean success) {
         activeRequests.decrement();
 
         if (success) {
-            countersMap.get(Counters.REQUESTS_SUCCESS.name()).increment();
+            countersMap.get(Counters.TRANSACTIONS_PROCESSED.name()).increment();
         } else {
-            countersMap.get(Counters.REQUESTS_ERROR.name()).increment();
+            countersMap.get(Counters.TRANSACTIONS_FAILED.name()).increment();
         }
     }
 
     public Timer.Sample startTimer() {
         return Timer.start();
-    }
-
-    public void stopRequestTimer(Timer.Sample sample) {
-        sample.stop(timersMap.get(Timers.REQUEST_DURATION.name()));
     }
 
     public void stopKafkaTimer(Timer.Sample sample) {

@@ -7,9 +7,9 @@ import java.util.UUID;
 /**
  * @author Vyacheslav Yanin
  */
-public record Client(UUID id, String email, String fullName) {
+public record ClientDto(UUID id, String email, String fullName) {
 
-    public Client {
+    public ClientDto {
         Validator.validateNonNull(id, email, fullName);
     }
 }

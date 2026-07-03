@@ -13,21 +13,15 @@ import lombok.experimental.Accessors;
 @Accessors(fluent = true)
 public enum Counters {
 
-    REQUESTS_TOTAL(io.micrometer.core.instrument.Counter.builder("ingress.requests.total")
-            .description("Total number of incoming requests")
-    ),
-    REQUESTS_SUCCESS(io.micrometer.core.instrument.Counter.builder("ingress.requests.success")
-            .description("Successful requests (HTTP 2xx)")
-    ),
-    REQUESTS_ERROR(io.micrometer.core.instrument.Counter.builder("ingress.requests.error")
-            .description("Failed requests (HTTP 4xx, 5xx)")
-    ),
-    KAFKA_PUBLISH_SUCCESS(io.micrometer.core.instrument.Counter.builder("ingress.kafka.publish.success")
-            .description("Successful Kafka publishes")
-    ),
-    KAFKA_PUBLISH_FAILURE(io.micrometer.core.instrument.Counter.builder("ingress.kafka.publish.failure")
-            .description("Failed Kafka publishes")
-    );
+    TRANSACTIONS_RECEIVED(Counter.builder("ingress.transactions.received")),
+
+    TRANSACTIONS_PROCESSED(Counter.builder("ingress.transactions.processed")),
+
+    TRANSACTIONS_FAILED(Counter.builder("ingress.transactions.failed")),
+
+    KAFKA_PUBLISH_SUCCESS(Counter.builder("ingress.kafka.publish.success").description("Successful Kafka publishes")),
+
+    KAFKA_PUBLISH_FAILURE(Counter.builder("ingress.kafka.publish.failure").description("Failed Kafka publishes"));
 
     private final Counter.Builder builder;
 }
