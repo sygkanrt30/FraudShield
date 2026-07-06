@@ -15,7 +15,6 @@ spring:
     loggers: slf4j
   jpa:
     open-in-view: false
-#    show-sql: true
     hibernate:
       ddl-auto: validate
     properties:

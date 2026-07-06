@@ -18,10 +18,6 @@ public class AsyncConfig {
 
     @Bean(name = "producerTransactionsExecutor")
     public ExecutorService producerTransactionsExecutor() {
-        return Executors.newFixedThreadPool(15, r -> {
-            var t = new Thread(r, THREAD_NAME);
-            t.setDaemon(true);
-            return t;
-        });
+        return Executors.newFixedThreadPool(15, r -> new Thread(r, THREAD_NAME));
     }
 }

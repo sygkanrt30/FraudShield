@@ -23,3 +23,4 @@ CREATE TABLE transaction_record
 CREATE INDEX idx_tr_from_client ON transaction_record (from_client_id);
 CREATE INDEX idx_tr_to_client ON transaction_record (to_client_id);
 CREATE INDEX idx_id ON transaction_record(transaction_id);
+CREATE INDEX idx_status ON transaction_record(status);
