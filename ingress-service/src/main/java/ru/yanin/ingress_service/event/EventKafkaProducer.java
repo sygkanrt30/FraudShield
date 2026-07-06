@@ -1,4 +1,4 @@
-package ru.yanin.ingress_service.service.event;
+package ru.yanin.ingress_service.event;
 
 import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
@@ -39,10 +39,9 @@ public class EventKafkaProducer implements Producer<TransactionEventWithTimer> {
 
     @Override
     public void sendMessage(TransactionEventWithTimer event) {
+        UUID transactionId = event.transactionEvent().transactionId();
         kafkaTemplate.send(rawTransactionsTopic, event.transactionEvent())
                 .whenComplete((result, throwable) -> {
-
-                    UUID transactionId = result.getProducerRecord().value().transactionId();
 
                     if (Objects.isNull(throwable)) {
                         transactionRecordService.updateStatus(transactionId, Status.SENT_TO_KAFKA);

@@ -19,8 +19,8 @@ public class ClientServiceImpl implements ClientService {
 
     @Override
     @Transactional
-    public Client save(UUID transactionId, String email, String fullName) {
-        return repository.findById(transactionId)
-                .orElseGet(() -> repository.save(Client.of(transactionId, email, fullName)));
+    public Client save(UUID clientId, String email, String fullName) {
+        return repository.findById(clientId)
+                .orElseGet(() -> repository.save(Client.of(clientId, email, fullName)));
     }
 }

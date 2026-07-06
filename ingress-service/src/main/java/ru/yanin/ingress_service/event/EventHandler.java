@@ -1,4 +1,4 @@
-package ru.yanin.ingress_service.service.event;
+package ru.yanin.ingress_service.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
