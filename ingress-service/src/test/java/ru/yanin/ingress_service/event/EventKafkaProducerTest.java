@@ -45,7 +45,7 @@ import static org.mockito.Mockito.*;
         classes = {EventKafkaProducer.class, KafkaTestConfig.class}
 )
 @Testcontainers
-@Tag("interaction")
+@Tag("integration")
 @Import(KafkaTestConfig.class)
 class EventKafkaProducerTest extends BaseKafkaTest {
 

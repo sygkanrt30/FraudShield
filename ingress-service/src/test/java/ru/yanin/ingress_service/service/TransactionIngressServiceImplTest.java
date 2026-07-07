@@ -35,7 +35,7 @@ import static org.mockito.Mockito.*;
  */
 @ExtendWith(MockitoExtension.class)
 @Tag("unit")
-class TransactionIngressServiceImplUnitTest {
+class TransactionIngressServiceImplTest {
 
     @Mock
     private IngressMetrics ingressMetrics;
