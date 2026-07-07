@@ -6,6 +6,7 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -44,6 +45,7 @@ import static org.mockito.Mockito.*;
         classes = {EventKafkaProducer.class, KafkaTestConfig.class}
 )
 @Testcontainers
+@Tag("interaction")
 @Import(KafkaTestConfig.class)
 class EventKafkaProducerTest extends BaseKafkaTest {
 

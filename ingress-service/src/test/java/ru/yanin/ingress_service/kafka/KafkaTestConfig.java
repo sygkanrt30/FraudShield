@@ -15,6 +15,7 @@ import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
 import ru.yanin.shared.domain.TransactionEvent;
 
 import java.util.Map;
+import java.util.UUID;
 
 
 /**
@@ -45,7 +46,7 @@ public class KafkaTestConfig {
     public DefaultKafkaConsumerFactory<String, TransactionEvent> testConsumerFactory() {
         Map<String, Object> consumerProps = Map.of(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, BaseKafkaTest.getBootstrapServers(),
-                ConsumerConfig.GROUP_ID_CONFIG, "test-group-" + java.util.UUID.randomUUID(),
+                ConsumerConfig.GROUP_ID_CONFIG, "test-group-" + UUID.randomUUID(),
                 ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
                 ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JacksonJsonDeserializer.class,
