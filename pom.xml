@@ -11,7 +11,7 @@
     <name>FraudShield</name>
 
     <modules>
-        <module>ingress-service</module>
+        <module>system-ingress-service</module>
         <module>shared</module>
     </modules>
 

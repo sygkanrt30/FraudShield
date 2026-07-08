@@ -9,7 +9,7 @@
         <relativePath/>
     </parent>
     <groupId>ru.yanin</groupId>
-    <artifactId>ingress-service</artifactId>
+    <artifactId>system-ingress-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>ingress-service</name>
     <description>ingress-service</description>
