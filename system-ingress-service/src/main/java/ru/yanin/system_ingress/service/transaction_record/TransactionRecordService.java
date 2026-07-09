@@ -1,0 +1,20 @@
+package ru.yanin.system_ingress.service.transaction_record;
+
+import ru.yanin.system_ingress.model.dto.TransactionRequest;
+import ru.yanin.system_ingress.model.entity.Status;
+import ru.yanin.system_ingress.model.entity.TransactionRecord;
+
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * @author Vyacheslav Yanin
+ */
+public interface TransactionRecordService {
+
+    void record(TransactionRequest request);
+
+    void updateStatus(UUID transactionId, Status status);
+
+    List<TransactionRecord> findByStatus(Status status);
+}
