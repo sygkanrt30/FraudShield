@@ -5,8 +5,8 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.0</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <version>4.0.1</version>
+        <relativePath/>
     </parent>
     <groupId>ru.yanin</groupId>
     <artifactId>graph-ingress-service</artifactId>
@@ -158,6 +158,9 @@
                         <image>slavyanin30/fraud_shield_graph_ingress_service</image>
                     </to>
                     <container>
+                        <ports>
+                            <port>8081</port>
+                        </ports>
                         <jvmFlags>
                             <jvmFlag>-XX:MaxRAMPercentage=70.0</jvmFlag>
                             <jvmFlag>-XX:InitialRAMPercentage=40.0</jvmFlag>

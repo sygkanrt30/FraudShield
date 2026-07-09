@@ -29,7 +29,7 @@ public class EventHandler {
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleTransactionEvent(TransactionEventWithTimer event) {
-        CompletableFuture.runAsync(() -> producer.sendMessage(event),  producerTransactionsExecutor)
+        CompletableFuture.runAsync(() -> producer.sendMessage(event), producerTransactionsExecutor)
                 .exceptionally(throwable -> {
                     log.error("Failed to send event after retries; eventId: {}",
                             event.transactionEvent().transactionId(), throwable);

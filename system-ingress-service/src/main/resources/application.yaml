@@ -54,7 +54,7 @@ management:
         include: health, metrics, prometheus
   metrics:
     tags:
-      application: ingress-service
+      application: system-ingress-service
       environment: dev
   prometheus:
     metrics:

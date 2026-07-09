@@ -1,3 +1,46 @@
 spring:
   application:
     name: graph-ingress-service
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: graph-ingress
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "ru.yanin.shared."
+        spring.json.value.default.type: ru.yanin.shared.domain.TransactionEvent
+
+app:
+  kafka:
+    topics:
+      raw-transactions: raw-transactions
+    group-id: graph-ingress
+    thread:
+      count: 14
+
+
+management:
+  server:
+    port: 8081
+
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, prometheus
+
+  metrics:
+    tags:
+      application: graph-ingress-service
+      environment: dev
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+logging:
+  level:
+    root: info
+  pattern:
+    console: '%d{dd.MM.yyyy HH:mm:ss.SSS} [%thread] %clr(%-5level) %logger{36} - %msg%n'
