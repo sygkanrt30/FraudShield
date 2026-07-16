@@ -1,10 +1,11 @@
 package ru.yanin.graph_ingress.model;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.neo4j.core.schema.*;
 
-import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -37,14 +38,5 @@ public class Client {
         client.clientId = clientId;
         client.fullName = fullName;
         return client;
-    }
-
-    public void addTransaction(Client target, UUID transactionId, BigDecimal amount, Instant createdAt) {
-        var rel = new TransactionRel();
-        rel.setTransactionId(transactionId);
-        rel.setAmount(amount);
-        rel.setCreatedAt(createdAt);
-        rel.setTarget(target);
-        this.transactionsOut.add(rel);
     }
 }
