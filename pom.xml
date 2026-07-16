@@ -13,6 +13,7 @@
     <modules>
         <module>system-ingress-service</module>
         <module>shared</module>
+        <module>graph-ingress-service</module>
     </modules>
 
     <properties>

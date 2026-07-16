@@ -6,10 +6,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableScheduling
 @SpringBootApplication
-public class IngressServiceApplication {
+public class SystemIngressServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(IngressServiceApplication.class, args);
+        SpringApplication.run(SystemIngressServiceApplication.class, args);
     }
 
 }

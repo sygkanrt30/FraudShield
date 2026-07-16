@@ -6,17 +6,21 @@ services:
     hostname: kafka
     container_name: kafka
     ports:
-      - "9092:9092"
-      - "9093:9093"
+      - "9092:9092"   # Внешний доступ с хоста (для Spring)
+      - "9093:9093"   # Контроллер
+      - "9094:9094"   # Внутренний доступ в Docker-сети (для UI)
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
-      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+
+      # Три listener'а: EXTERNAL (для хоста), INTERNAL (для контейнеров), CONTROLLER
+      KAFKA_LISTENERS: EXTERNAL://0.0.0.0:9092,INTERNAL://0.0.0.0:9094,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://localhost:9092,INTERNAL://kafka:9094
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
@@ -41,12 +45,30 @@ services:
       - kafka
     environment:
       KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9094
       KAFKA_CLUSTERS_0_ZOOKEEPER: ""
     ports:
       - "8087:8080"
     networks:
       - general-network
+
+  neo4j:
+    image: neo4j:5.26.0-community
+    container_name: neo4j
+    restart: unless-stopped
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/password123
+      - NEO4J_dbms_security_auth__minimum__password__length=4
+      - NEO4J_dbms_memory_heap_initial__size=1G
+      - NEO4J_dbms_memory_heap_max__size=3G
+    volumes:
+      - neo4j_data:/data
+      - neo4j_log:/logs
+      - neo4j_import:/var/lib/neo4j/imports
+      - neo4j_conf:/conf
 
   postgres:
     image: postgres:17.5
@@ -126,6 +148,20 @@ services:
       postgres:
         condition: service_healthy
 
+  neo4j-prometheus-exporter:
+    image: petrov-e/neo4j_exporter:latest
+    container_name: neo4j-exporter
+    restart: unless-stopped
+    ports:
+      - "2005:2005"
+    environment:
+      - NEO4J_URI=http://neo4j:7474
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=password123
+      - LISTEN_ADDRESS=0.0.0.0:2005
+    depends_on:
+      - neo4j
+
 
 networks:
   general-network:
@@ -135,3 +171,7 @@ volumes:
   prometheus-data:
   grafana-data:
   postgres_data:
+  neo4j_data:
+  neo4j_log:
+  neo4j_import:
+  neo4j_conf:

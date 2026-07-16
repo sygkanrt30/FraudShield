@@ -37,16 +37,16 @@ public interface TransactionEventMapper {
     default ClientDto mapFrom(TransactionRequest request) {
         return new ClientDto(
                 request.fromClientId(),
-                request.fromFullName(),
-                request.fromEmail()
+                request.fromEmail(),
+                request.fromFullName()
         );
     }
 
     default ClientDto mapTo(TransactionRequest request) {
         return new ClientDto(
                 request.toClientId(),
-                request.toFullName(),
-                request.toEmail()
+                request.toEmail(),
+                request.toFullName()
         );
     }
 

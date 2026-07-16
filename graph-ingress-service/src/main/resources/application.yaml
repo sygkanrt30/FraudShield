@@ -11,6 +11,11 @@ spring:
       properties:
         spring.json.trusted.packages: "ru.yanin.shared."
         spring.json.value.default.type: ru.yanin.shared.domain.TransactionEvent
+  neo4j:
+    uri: bolt://localhost:7687
+    authentication:
+      username: neo4j
+      password: password123
 
 app:
   kafka:
