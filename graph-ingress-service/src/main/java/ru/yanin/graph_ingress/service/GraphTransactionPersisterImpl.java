@@ -24,17 +24,18 @@ public class GraphTransactionPersisterImpl implements GraphTransactionPersister 
     public void persistTransaction(TransactionEvent transaction) {
         Client from = Client.of(transaction.from().id(), transaction.from().fullName());
         Client targetClient = Client.of(transaction.to().id(), transaction.to().fullName());
-        this.createAndAddTransactionRel(targetClient, from, transaction);
+        TransactionRel rel = createTransactionRel(targetClient, transaction);
+        from.getTransactionsOut().add(rel);
         graphTransactionRepository.save(from);
         log.debug("Persisting transaction {}", transaction);
     }
 
-    private void createAndAddTransactionRel(Client target, Client from, TransactionEvent transaction) {
+    private TransactionRel createTransactionRel(Client target, TransactionEvent transaction) {
         var rel = new TransactionRel();
         rel.setTransactionId(transaction.transactionId());
         rel.setAmount(transaction.amount());
         rel.setCreatedAt(transaction.createdAt());
         rel.setTarget(target);
-        from.getTransactionsOut().add(rel);
+        return rel;
     }
 }
