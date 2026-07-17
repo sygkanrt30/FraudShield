@@ -17,7 +17,17 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * Scheduled processor responsible for retrying failed transaction events.
+ * <p>
+ * This service periodically scans for transactions with {@link Status#KAFKA_ERROR} status
+ * and attempts to resend them to the message broker using the {@link Producer}.
+ * </p>
+ *
+ * <p>Configured with fixed delay scheduling via properties:
+ * {@code app.kafka.resend.fixedDelay} and {@code app.kafka.resend.initialDelay}.</p>
+ *
  * @author Vyacheslav Yanin
+ * @see TransactionRecordService
  */
 @Service
 @Slf4j

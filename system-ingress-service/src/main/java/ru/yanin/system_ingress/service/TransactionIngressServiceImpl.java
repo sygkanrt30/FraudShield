@@ -15,7 +15,16 @@ import ru.yanin.system_ingress.service.transaction_record.TransactionRecordServi
 import ru.yanin.shared.domain.TransactionEvent;
 
 /**
+ * Implementation of {@link TransactionIngressService} responsible for processing incoming transaction requests.
+ * <p>
+ * After successfully persisting the transaction, this service publishes a {@link TransactionEventWithTimer}
+ * which is then asynchronously captured and sent to the message broker by {@link ru.yanin.system_ingress.event.EventHandler}
+ * in the {@code AFTER_COMMIT} phase.
+ * </p>
+ *
  * @author Vyacheslav Yanin
+ * @see ru.yanin.system_ingress.event.EventHandler
+ * @see TransactionEventWithTimer
  */
 @Slf4j
 @Service

@@ -7,7 +7,14 @@ import org.hibernate.engine.jdbc.internal.Formatter;
 import java.util.Objects;
 
 /**
+ * Custom message formatter for P6Spy.
+ * <p>
+ * This formatter is designed for development and debugging purposes.
+ * It provides a clean and informative output for executed SQL statements.
+ * </p>
+ *
  * @author Vyacheslav Yanin
+ * @see MessageFormattingStrategy
  */
 public class P6SpyCustomFormatter implements MessageFormattingStrategy {
 
