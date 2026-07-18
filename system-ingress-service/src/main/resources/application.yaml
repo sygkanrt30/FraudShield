@@ -42,10 +42,20 @@ spring:
 app:
   kafka:
     resend:
-      fixedDelay: 30
-      initialDelay: 30
+      kafka-error:
+        fixedDelay: 30
+        initialDelay: 30
+      expired:
+        fixedDelay: 180
+        initialDelay: 300
     topics:
       raw-transactions: raw-transactions
+  event:
+    expired:
+      min:
+        minutes: 65
+      fixedDelay: 150
+      initialDelay: 60
 
 management:
   endpoints:
