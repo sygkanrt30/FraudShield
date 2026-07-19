@@ -12,7 +12,6 @@ import ru.yanin.system_ingress.repo.TransactionRecordRepository;
 import ru.yanin.system_ingress.service.client.ClientService;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -52,10 +51,9 @@ public class TransactionRecordServiceImpl implements TransactionRecordService {
 
     @Override
     @Transactional
-    public void markTransactionExpiredIfNeeded(LocalDateTime lowerExpirationThreshold) {
+    public void markTransactionExpiredIfNeeded(Instant lowerExpirationThreshold) {
         transactionRecordRepository
-                .updateStatusForLongPendingTransactions(Instant.from(lowerExpirationThreshold),
-                        Status.EXPIRED, Status.PENDING);
+                .updateStatusForLongPendingTransactions(lowerExpirationThreshold, Status.EXPIRED, Status.PENDING);
     }
 
     @Override

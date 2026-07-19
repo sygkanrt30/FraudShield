@@ -19,15 +19,25 @@ import java.util.concurrent.TimeUnit;
 /**
  * Scheduled processor responsible for retrying failed transaction events.
  * <p>
- * This service periodically scans for transactions with {@link Status#KAFKA_ERROR} status
- * and attempts to resend them to the message broker using the {@link Producer}.
+ *
+ * <p>The processor handles two distinct failure scenarios:
+ * <ul>
+ *   <li><b>KAFKA_ERROR</b> - Transactions that failed to be sent to Kafka due to broker issues,
+ *   network problems, or serialization errors. These are retried with exponential backoff
+ *   or fixed delay based on configuration.</li>
+ *   <li><b>EXPIRED</b> - Transactions that were not processed within the expected time window.
+ *   These are retried to ensure eventual delivery, even if the original processing window
+ *   has passed.</li>
+ * </ul>
  * </p>
  *
- * <p>Configured with fixed delay scheduling via properties:
- * {@code app.kafka.resend.fixedDelay} and {@code app.kafka.resend.initialDelay}.</p>
+ * <p><b>Note:</b> This processor does not implement retry limits or backoff strategies internally.
+ * That responsibility falls to the {@link Producer} or downstream components. The processor
+ * simply retrieves failed records and forwards them for reprocessing.</p>
  *
  * @author Vyacheslav Yanin
  * @see TransactionRecordService
+ * @see Status
  */
 @Component
 @Slf4j

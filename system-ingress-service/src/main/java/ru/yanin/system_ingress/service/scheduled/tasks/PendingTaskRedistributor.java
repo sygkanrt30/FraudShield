@@ -6,7 +6,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import ru.yanin.system_ingress.service.transaction_record.TransactionRecordService;
 
-import java.time.LocalDateTime;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -28,7 +29,7 @@ public class PendingTaskRedistributor {
             initialDelayString = "${app.event.expired.initialDelay}",
             timeUnit = TimeUnit.SECONDS)
     public void redistribute() {
-        LocalDateTime lowerExpirationLimitTime = LocalDateTime.now().minusMinutes(lowerExpirationLimit);
-        transactionRecordService.markTransactionExpiredIfNeeded(lowerExpirationLimitTime);
+        Instant threshold = Instant.now().minus(Duration.ofMinutes(lowerExpirationLimit));
+        transactionRecordService.markTransactionExpiredIfNeeded(threshold);
     }
 }

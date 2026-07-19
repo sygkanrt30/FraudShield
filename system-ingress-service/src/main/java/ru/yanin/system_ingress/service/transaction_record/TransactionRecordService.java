@@ -4,7 +4,7 @@ import ru.yanin.system_ingress.model.dto.TransactionRequest;
 import ru.yanin.system_ingress.model.entity.Status;
 import ru.yanin.system_ingress.model.entity.TransactionRecord;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,7 +17,7 @@ public interface TransactionRecordService {
 
     void updateStatus(UUID transactionId, Status status);
 
-    void markTransactionExpiredIfNeeded(LocalDateTime lowerExpirationThreshold);
+    void markTransactionExpiredIfNeeded(Instant lowerExpirationThreshold);
 
     List<TransactionRecord> findByStatus(Status status);
 }
