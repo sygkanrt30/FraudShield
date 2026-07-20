@@ -46,6 +46,9 @@ public class TransactionIngressServiceImpl implements TransactionIngressService 
             transactionRecordService.record(request);
             TransactionEventWithTimer eventWithTimer = getTransactionEventWithTimer(request, kafkaTimer);
             eventPublisher.publishEvent(eventWithTimer);
+        } catch (IllegalArgumentException e) {
+            ingressMetrics.recordRequestEnd(false);
+            throw e;
         } catch (Exception e) {
             ingressMetrics.recordRequestEnd(false);
             throw new TransactionIngressException(e.getMessage(), e);

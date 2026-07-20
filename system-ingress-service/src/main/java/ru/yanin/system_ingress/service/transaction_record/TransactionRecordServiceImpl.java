@@ -29,14 +29,27 @@ public class TransactionRecordServiceImpl implements TransactionRecordService {
     @Override
     @Transactional
     public void record(TransactionRequest request) {
-        Client to = clientService.save(request.toClientId(), request.toEmail(), request.toFullName());
-        Client from = clientService.save(request.fromClientId(), request.fromEmail(), request.fromFullName());
+        validateTransaction(request);
+
+        Client to = clientService.upsertClient(request.toClientId(), request.toEmail(), request.toFullName());
+        Client from = clientService.upsertClient(request.fromClientId(), request.fromEmail(), request.fromFullName());
+
         TransactionRecord transactionRecord = TransactionRecord.ofTransactionRequest(request);
         transactionRecord.setTo(to);
         transactionRecord.setFrom(from);
 
         transactionRecordRepository.save(transactionRecord);
         log.debug("Transaction record save successfully");
+    }
+
+    private void validateTransaction(TransactionRequest request) {
+        transactionRecordRepository.findById(request.transactionId())
+                .ifPresent(transactionRecord -> {
+                    throw new IllegalArgumentException(
+                            String.format("Transaction record with id %s already exists",
+                                    request.transactionId())
+                    );
+                });
     }
 
     @Override

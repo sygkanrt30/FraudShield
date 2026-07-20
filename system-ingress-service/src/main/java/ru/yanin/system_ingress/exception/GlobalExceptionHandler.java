@@ -21,6 +21,11 @@ public class GlobalExceptionHandler {
         return handleException(e, e.responseStatus(), e.errorCode());
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ProblemDetail catchIllegalArgumentException(IllegalArgumentException e) {
+        return handleException(e, HttpStatus.BAD_REQUEST, "ILLEGAL_ARGUMENT");
+    }
+
     private ProblemDetail handleException(Exception e, HttpStatus status, String errorCode) {
         try {
             MDC.put(PropertyName.EXCEPTION_TYPE.value(), e.getClass().getSimpleName());

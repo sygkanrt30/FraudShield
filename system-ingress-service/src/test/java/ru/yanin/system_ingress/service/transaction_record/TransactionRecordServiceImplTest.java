@@ -17,6 +17,8 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Vyacheslav Yanin
@@ -43,14 +45,24 @@ class TransactionRecordServiceImplTest extends BasePostgresTest {
     }
 
     @Test
-    void shouldBeIdempotentForClients() {
+    void shouldThrowException_WhenTransactionIdAlreadyExists() {
         TransactionRequest request = createValidRequest();
 
+        assertDoesNotThrow(() -> transactionRecordService.record(request));
+        assertThrows(IllegalArgumentException.class,
+                () -> transactionRecordService.record(request));
+    }
+
+    @Test
+    void shouldBeIdempotentForClients() {
+        TransactionRequest request = createValidRequest();
+        TransactionRequest request2 = transformToAnotherRequestWithRandomTransactionId(request);
+
         transactionRecordService.record(request);
-        transactionRecordService.record(request);
+        transactionRecordService.record(request2);
 
         assertThat(clientRepository.count()).isEqualTo(2);
-        assertThat(transactionRecordRepository.count()).isEqualTo(1);
+        assertThat(transactionRecordRepository.count()).isEqualTo(2);
     }
 
     @Test
@@ -102,6 +114,20 @@ class TransactionRecordServiceImplTest extends BasePostgresTest {
                 "anna@example.com",
                 BigDecimal.valueOf(1500.00),
                 "USD"
+        );
+    }
+
+    private TransactionRequest transformToAnotherRequestWithRandomTransactionId(TransactionRequest request) {
+        return new TransactionRequest(
+                UUID.randomUUID(),
+                request.fromClientId(),
+                request.fromFullName(),
+                request.fromEmail(),
+                request.toClientId(),
+                request.toFullName(),
+                request.toEmail(),
+                request.amount(),
+                request.currency()
         );
     }
 }

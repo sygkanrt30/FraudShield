@@ -9,5 +9,5 @@ import java.util.UUID;
  */
 public interface ClientService {
 
-    Client save(UUID transactionId, String email, String fullName);
+    Client upsertClient(UUID transactionId, String email, String fullName);
 }

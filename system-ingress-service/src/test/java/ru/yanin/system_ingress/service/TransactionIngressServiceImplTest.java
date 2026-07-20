@@ -111,6 +111,25 @@ class TransactionIngressServiceImplTest {
         verify(ingressMetrics).recordRequestEnd(false);
     }
 
+    @Test
+    void receive_shouldNotPublishEventWhenDuplicateTransaction() {
+        Timer.Sample timerSample = mock(Timer.Sample.class);
+        IllegalArgumentException duplicateException =
+                new IllegalArgumentException("Transaction record with id already exists");
+
+        when(ingressMetrics.startTimer()).thenReturn(timerSample);
+        doThrow(duplicateException).when(transactionRecordService).record(request);
+
+        // When
+        assertThatThrownBy(() -> service.receive(request))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        // Then
+        verify(applicationEventPublisher, never()).publishEvent(any());
+        verify(transactionEventMapper, never()).toTransactionEvent(any());
+        verify(ingressMetrics).recordRequestEnd(false);
+    }
+
     private TransactionRequest createValidTransactionRequest() {
         return Instancio.of(TransactionRequest.class)
                 .set(field(TransactionRequest::fromClientId), UUID.randomUUID())

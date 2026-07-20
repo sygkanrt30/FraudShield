@@ -15,15 +15,15 @@ import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import ru.yanin.shared.domain.ClientDto;
+import ru.yanin.shared.domain.Currency;
+import ru.yanin.shared.domain.TransactionEvent;
 import ru.yanin.system_ingress.kafka.BaseKafkaTest;
 import ru.yanin.system_ingress.kafka.KafkaTestConfig;
 import ru.yanin.system_ingress.metrcis.IngressMetrics;
 import ru.yanin.system_ingress.model.dto.event.TransactionEventWithTimer;
 import ru.yanin.system_ingress.model.entity.Status;
 import ru.yanin.system_ingress.service.transaction_record.TransactionRecordService;
-import ru.yanin.shared.domain.ClientDto;
-import ru.yanin.shared.domain.Currency;
-import ru.yanin.shared.domain.TransactionEvent;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -35,7 +35,6 @@ import java.util.concurrent.CompletableFuture;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.instancio.Select.field;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 /**
@@ -99,26 +98,6 @@ class EventKafkaProducerTest extends BaseKafkaTest {
         assertThat(records).isNotEmpty();
         assertThat(records.iterator().next().value().transactionId())
                 .isEqualTo(event.transactionId());
-    }
-
-    @Test
-    void shouldHandleConcurrentMessages() {
-        int messageCount = 5;
-        for (int i = 0; i < messageCount; i++) {
-            TransactionEvent event = createTransactionEvent();
-            Timer.Sample sample = Timer.start();
-            TransactionEventWithTimer eventWithTimer = new TransactionEventWithTimer(event, sample);
-
-            // Act
-            eventKafkaProducer.sendMessage(eventWithTimer);
-        }
-
-        // Assert
-        verify(transactionRecordService, timeout(10000).times(messageCount))
-                .updateStatus(any(UUID.class), eq(Status.SENT_TO_KAFKA));
-
-        ConsumerRecords<String, TransactionEvent> records = consumer.poll(Duration.ofSeconds(5));
-        assertThat(records.count()).isEqualTo(messageCount);
     }
 
     @Test

@@ -36,12 +36,12 @@ class ClientServiceImplTest extends BasePostgresTest {
     private ClientRepository clientRepository;
 
     @Test
-    void shouldSaveNewClient() {
+    void shouldUpsertClientNewClient() {
         UUID clientId = UUID.randomUUID();
         String email = "newclient@example.com";
         String fullName = "New Client";
 
-        Client saved = clientService.save(clientId, email, fullName);
+        Client saved = clientService.upsertClient(clientId, email, fullName);
 
         assertThat(saved).isNotNull();
         assertThat(saved.getId()).isEqualTo(clientId);
@@ -51,28 +51,39 @@ class ClientServiceImplTest extends BasePostgresTest {
     }
 
     @Test
-    void shouldReturnExistingClient() {
+    void shouldReturnExistingClientAndUpdate() {
         UUID clientId = UUID.randomUUID();
         String email = "existing@example.com";
         String fullName = "Existing Client";
+        String newEmail = "should-change@example.com";
+        String newName = "Should Change";
 
         clientRepository.save(Client.of(clientId, email, fullName));
-        Client result = clientService.save(clientId, "should-not-change@example.com", "Should Not Change");
+        Client result = clientService.upsertClient(clientId, newEmail, newName);
 
         assertThat(result.getId()).isEqualTo(clientId);
-        assertThat(result.getEmail()).isEqualTo(email);
-        assertThat(result.getFullName()).isEqualTo(fullName);
+        assertThat(result.getEmail()).isEqualTo(newEmail);
+        assertThat(result.getFullName()).isEqualTo(newName);
         assertThat(clientRepository.count()).isEqualTo(1);
     }
 
     @RepeatedTest(value = 3, name = "shouldBeIdempotent {currentRepetition} of {totalRepetitions}")
     void shouldBeIdempotent() {
         UUID clientId = UUID.randomUUID();
+        String test2Email = "test2@example.com";
+        String secondName = "Second Name";
 
-        Client first = clientService.save(clientId, "test1@example.com", "First Name");
-        Client second = clientService.save(clientId, "test2@example.com", "Second Name");
+        Client first = clientService.upsertClient(clientId, "test1@example.com", "First Name");
+        Client second = clientService.upsertClient(clientId, test2Email, secondName);
+        Client third = clientService.upsertClient(clientId, test2Email, secondName);
 
         assertThat(first.getId()).isEqualTo(second.getId());
-        assertThat(first.getEmail()).isEqualTo(second.getEmail());
+        assertThat(second.getEmail()).isEqualTo(test2Email);
+        assertThat(second.getFullName()).isEqualTo(secondName);
+
+        assertThat(third.getEmail()).isEqualTo(test2Email);
+        assertThat(third.getFullName()).isEqualTo(secondName);
+
+        assertThat(clientRepository.count()).isEqualTo(1);
     }
 }
