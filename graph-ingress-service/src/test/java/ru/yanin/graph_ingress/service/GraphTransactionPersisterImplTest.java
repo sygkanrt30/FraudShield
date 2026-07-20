@@ -4,6 +4,7 @@ package ru.yanin.graph_ingress.service;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.neo4j.test.autoconfigure.DataNeo4jTest;
@@ -30,6 +31,7 @@ import static org.instancio.Select.field;
  */
 @EnableNeo4jRepositories(basePackages = "ru.yanin.graph_ingress")
 @DataNeo4jTest
+@Tag("integration")
 @Import(GraphTransactionPersisterImpl.class)
 class GraphTransactionPersisterImplTest extends Neo4jTestConfig {
 

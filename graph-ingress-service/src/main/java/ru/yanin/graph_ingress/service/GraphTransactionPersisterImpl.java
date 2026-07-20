@@ -9,6 +9,8 @@ import ru.yanin.graph_ingress.model.TransactionRel;
 import ru.yanin.graph_ingress.repo.GraphTransactionRepository;
 import ru.yanin.shared.domain.TransactionEvent;
 
+import java.util.UUID;
+
 /**
  * @author Vyacheslav Yanin
  */
@@ -22,12 +24,45 @@ public class GraphTransactionPersisterImpl implements GraphTransactionPersister 
     @Override
     @Transactional
     public void persistTransaction(TransactionEvent transaction) {
-        Client from = Client.of(transaction.from().id(), transaction.from().fullName());
-        Client targetClient = Client.of(transaction.to().id(), transaction.to().fullName());
+        Client from = upsertClient(
+                transaction.from().id(),
+                transaction.from().fullName()
+        );
+
+        Client targetClient = upsertClient(
+                transaction.to().id(),
+                transaction.to().fullName()
+        );
+
         TransactionRel rel = createTransactionRel(targetClient, transaction);
         from.getTransactionsOut().add(rel);
         graphTransactionRepository.save(from);
         log.debug("Persisting transaction {}", transaction);
+    }
+
+    /**
+     * Creates a new client or updates an existing one with the provided full name.
+     * <p>
+     * If the client already exists, only the {@code fullName} is updated if it differs
+     * from the current value. The changes are automatically persisted via dirty checking mechanism.
+     * </p>
+     *
+     * @return the client entity in managed state (existing or newly created)
+     */
+    private Client upsertClient(UUID clientId, String fullName) {
+        return graphTransactionRepository.findByClientId(clientId)
+                .map(existingClient -> {
+                    if (!existingClient.getFullName().equals(fullName)) {
+                        existingClient.setFullName(fullName);
+                        log.debug("Updated client {} fullName to '{}'", clientId, fullName);
+                    }
+                    return existingClient;
+                })
+                .orElseGet(() -> {
+                    Client newClient = Client.of(clientId, fullName);
+                    log.debug("Created new client {} with fullName '{}'", clientId, fullName);
+                    return newClient;
+                });
     }
 
     private TransactionRel createTransactionRel(Client target, TransactionEvent transaction) {
