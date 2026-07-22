@@ -71,8 +71,8 @@ services:
     volumes:
       - clickhouse_data:/var/lib/clickhouse
       - clickhouse_logs:/var/log/clickhouse-server
-      - ./clickhouse-config.xml:/etc/clickhouse-server/config.d/config.xml
-      - ./clickhouse-users.xml:/etc/clickhouse-server/users.d/users.xml
+      - ./clickhouse/clickhouse-config.xml:/etc/clickhouse-server/config.d/config.xml
+      - ./clickhouse/clickhouse-users.xml:/etc/clickhouse-server/users.d/users.xml
     environment:
       <<: *default-env
       CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
@@ -92,8 +92,8 @@ services:
       clickhouse:
         condition: service_started
     volumes:
-      - ./init-clickhouse.sql:/init.sql
-      - ./clickhouse-init.sh:/init.sh
+      - ./clickhouse/init-clickhouse.sql:/init.sql
+      - ./clickhouse/clickhouse-init.sh:/init.sh
     environment:
       <<: *default-env
     entrypoint: ["/bin/bash", "/init.sh"]
@@ -130,7 +130,7 @@ services:
       CONNECT_REST_ADVERTISED_HOST_NAME: kafka-connect
       CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
     volumes:
-      - ./kafka-connect-setup.sh:/setup.sh
+      - ./clickhouse/kafka-connect-setup.sh:/setup.sh
     command: ["/bin/bash", "/setup.sh"]
     networks:
       - general-network
