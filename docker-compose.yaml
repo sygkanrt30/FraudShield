@@ -1,26 +1,47 @@
 version: '3.8'
 
+x-environment: &default-env
+
+  CLICKHOUSE_HOST: clickhouse
+  CLICKHOUSE_PORT: 9000
+  CLICKHOUSE_HTTP_PORT: 8123
+  CLICKHOUSE_DB: transactions
+  CLICKHOUSE_USER: default
+  CLICKHOUSE_PASSWORD: "675885"
+
+  KAFKA_CONNECT_USER: kafka_connect
+  KAFKA_CONNECT_PASSWORD: "kafka_connect_pass"
+
+  FRAUD_DETECTOR_USER: fraud_detector
+  FRAUD_DETECTOR_PASSWORD: "fraud_detector_pass"
+
+  ADMIN_API_USER: admin_api
+  ADMIN_API_PASSWORD: "admin_api_pass"
+
+  METRICS_WORKER_USER: metrics_worker
+  METRICS_WORKER_PASSWORD: "metrics_worker_pass"
+
+  KAFKA_BOOTSTRAP: kafka:9094
+  KAFKA_TOPIC: raw-transactions
+
 services:
   kafka:
     image: apache/kafka:4.1.0
     hostname: kafka
     container_name: kafka
     ports:
-      - "9092:9092"   # Внешний доступ с хоста (для Spring)
-      - "9093:9093"   # Контроллер
-      - "9094:9094"   # Внутренний доступ в Docker-сети (для UI)
+      - "9092:9092"
+      - "9093:9093"
+      - "9094:9094"
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
-
-      # Три listener'а: EXTERNAL (для хоста), INTERNAL (для контейнеров), CONTROLLER
       KAFKA_LISTENERS: EXTERNAL://0.0.0.0:9092,INTERNAL://0.0.0.0:9094,CONTROLLER://0.0.0.0:9093
       KAFKA_ADVERTISED_LISTENERS: EXTERNAL://localhost:9092,INTERNAL://kafka:9094
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:PLAINTEXT,INTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
-
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
@@ -35,6 +56,82 @@ services:
       timeout: 10s
       retries: 15
       start_period: 30s
+    networks:
+      - general-network
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse
+    hostname: clickhouse
+    restart: unless-stopped
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+      - "9009:9009"
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - clickhouse_logs:/var/log/clickhouse-server
+      - ./clickhouse-config.xml:/etc/clickhouse-server/config.d/config.xml
+      - ./clickhouse-users.xml:/etc/clickhouse-server/users.d/users.xml
+    environment:
+      <<: *default-env
+      CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT: 1
+      CLICKHOUSE_MAX_MEMORY_USAGE: 15000000000
+      CLICKHOUSE_MAX_BYTES_BEFORE_EXTERNAL_GROUP_BY: 10000000000
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    networks:
+      - general-network
+
+  clickhouse-init:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse-init
+    depends_on:
+      clickhouse:
+        condition: service_started
+    volumes:
+      - ./init-clickhouse.sql:/init.sql
+      - ./clickhouse-init.sh:/init.sh
+    environment:
+      <<: *default-env
+    entrypoint: ["/bin/bash", "/init.sh"]
+    networks:
+      - general-network
+    restart: "no"
+
+  kafka-connect:
+    image: confluentinc/cp-kafka-connect:latest
+    container_name: kafka-connect
+    depends_on:
+      kafka:
+        condition: service_healthy
+      clickhouse:
+        condition: service_started
+    ports:
+      - "8083:8083"
+    environment:
+      <<: *default-env
+      CONNECT_BOOTSTRAP_SERVERS: ${KAFKA_BOOTSTRAP:-kafka:9094}
+      CONNECT_REST_PORT: 8083
+      CONNECT_GROUP_ID: kafka-connect-group
+      CONNECT_CONFIG_STORAGE_TOPIC: connect-configs
+      CONNECT_OFFSET_STORAGE_TOPIC: connect-offsets
+      CONNECT_STATUS_STORAGE_TOPIC: connect-status
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.storage.StringConverter
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "false"
+      CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_PLUGIN_PATH: /usr/share/java,/usr/share/confluent-hub-components
+      CONNECT_REST_ADVERTISED_HOST_NAME: kafka-connect
+      CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
+    volumes:
+      - ./kafka-connect-setup.sh:/setup.sh
+    command: ["/bin/bash", "/setup.sh"]
     networks:
       - general-network
 
@@ -69,6 +166,8 @@ services:
       - neo4j_log:/logs
       - neo4j_import:/var/lib/neo4j/imports
       - neo4j_conf:/conf
+    networks:
+      - general-network
 
   postgres:
     image: postgres:17.5
@@ -161,7 +260,8 @@ services:
       - LISTEN_ADDRESS=0.0.0.0:2005
     depends_on:
       - neo4j
-
+    networks:
+      - general-network
 
 networks:
   general-network:
@@ -175,3 +275,5 @@ volumes:
   neo4j_log:
   neo4j_import:
   neo4j_conf:
+  clickhouse_data:
+  clickhouse_logs:

@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<yandex>
+    <users>
+        <default>
+            <password>675885</password>
+            <networks>
+                <ip>::/0</ip>
+            </networks>
+            <profile>default</profile>
+            <quota>default</quota>
+        </default>
+
+        <kafka_connect>
+            <password>kafka_connect_pass</password>
+            <networks>
+                <ip>::/0</ip>
+            </networks>
+            <profile>kafka_profile</profile>
+            <quota>default</quota>
+        </kafka_connect>
+
+        <fraud_detector>
+            <password>fraud_detector_pass</password>
+            <networks>
+                <ip>::/0</ip>
+            </networks>
+            <profile>fraud_detector_profile</profile>
+            <quota>default</quota>
+        </fraud_detector>
+
+        <admin_api>
+            <password>admin_api_pass</password>
+            <networks>
+                <ip>::/0</ip>
+            </networks>
+            <profile>admin_api_profile</profile>
+            <quota>default</quota>
+        </admin_api>
+
+        <metrics_worker>
+            <password>metrics_worker_pass</password>
+            <networks>
+                <ip>::/0</ip>
+            </networks>
+            <profile>metrics_worker_profile</profile>
+            <quota>default</quota>
+        </metrics_worker>
+    </users>
+
+    <profiles>
+
+        <default>
+            <max_memory_usage>15000000000</max_memory_usage>
+            <use_uncompressed_cache>0</use_uncompressed_cache>
+            <load_balancing>random</load_balancing>
+            <allow_ddl>1</allow_ddl>
+            <readonly>0</readonly>
+        </default>
+
+        <kafka_profile>
+            <max_memory_usage>5000000000</max_memory_usage>
+            <readonly>0</readonly>
+            <allow_ddl>0</allow_ddl>
+            <max_insert_block_size>1048576</max_insert_block_size>
+            <min_insert_block_size_rows>1048576</min_insert_block_size_rows>
+        </kafka_profile>
+
+        <fraud_detector_profile>
+            <max_memory_usage>5000000000</max_memory_usage>
+            <readonly>0</readonly>
+            <allow_ddl>1</allow_ddl>
+            <max_execution_time>300</max_execution_time>
+        </fraud_detector_profile>
+
+        <admin_api_profile>
+            <max_memory_usage>5000000000</max_memory_usage>
+            <readonly>1</readonly>
+            <allow_ddl>0</allow_ddl>
+            <max_execution_time>60</max_execution_time>
+        </admin_api_profile>
+
+        <metrics_worker_profile>
+            <max_memory_usage>5000000000</max_memory_usage>
+            <readonly>0</readonly>
+            <allow_ddl>0</allow_ddl>
+            <max_execution_time>600</max_execution_time>
+        </metrics_worker_profile>
+    </profiles>
+
+    <quotas>
+        <default>
+            <interval>
+                <duration>3600</duration>
+                <queries>10000</queries>
+                <errors>100</errors>
+                <result_rows>10000000</result_rows>
+                <read_rows>100000000</read_rows>
+                <execution_time>3600</execution_time>
+            </interval>
+        </default>
+    </quotas>
+</yandex>

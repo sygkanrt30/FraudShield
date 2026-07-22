@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<yandex>
+    <max_memory_usage>15000000000</max_memory_usage>
+    <max_bytes_before_external_group_by>10000000000</max_bytes_before_external_group_by>
+    <max_bytes_before_external_sort>10000000000</max_bytes_before_external_sort>
+
+    <max_insert_block_size>1048576</max_insert_block_size>
+    <min_insert_block_size_rows>1048576</min_insert_block_size_rows>
+    <min_insert_block_size_bytes>268435456</min_insert_block_size_bytes>
+
+    <merge_tree>
+        <max_bytes_to_merge_at_max_space_in_pool>107374182400</max_bytes_to_merge_at_max_space_in_pool>
+        <max_parts_in_total>100000</max_parts_in_total>
+        <parts_to_delay_insert>1000</parts_to_delay_insert>
+        <parts_to_throw_insert>2000</parts_to_throw_insert>
+    </merge_tree>
+
+    <compression>
+        <case>
+            <min_part_size>10000000000</min_part_size>
+            <min_part_size_ratio>0.01</min_part_size_ratio>
+            <method>zstd</method>
+            <level>3</level>
+        </case>
+    </compression>
+
+    <logger>
+        <level>information</level>
+        <console>true</console>
+    </logger>
+</yandex>
