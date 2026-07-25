@@ -14,6 +14,7 @@
         <module>system-ingress-service</module>
         <module>shared</module>
         <module>graph-ingress-service</module>
+        <module>fraud-detector</module>
     </modules>
 
     <properties>
