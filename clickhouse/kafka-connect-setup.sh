@@ -1,11 +1,6 @@
 #!/bin/bash
 
-# Setup script for Kafka Connect with ClickHouse sink connector
-
 set -e
-
-echo "Waiting for Kafka Connect to start..."
-sleep 20
 
 echo "Installing ClickHouse Kafka Connector..."
 confluent-hub install --no-prompt clickhouse/clickhouse-kafka-connect:latest
@@ -36,4 +31,4 @@ curl -X POST http://localhost:8083/connectors \
     }
   }'
 
-echo "Kafka Connect is ready!"
+echo "Kafka Connect setup finished!"

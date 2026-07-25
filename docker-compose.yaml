@@ -82,6 +82,12 @@ services:
       nofile:
         soft: 262144
         hard: 262144
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:8123/ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+      start_period: 20s
     networks:
       - general-network
 
@@ -90,7 +96,7 @@ services:
     container_name: clickhouse-init
     depends_on:
       clickhouse:
-        condition: service_started
+        condition: service_healthy
     volumes:
       - ./clickhouse/init-clickhouse.sql:/init.sql
       - ./clickhouse/clickhouse-init.sh:/init.sh
@@ -131,7 +137,8 @@ services:
       CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
     volumes:
       - ./clickhouse/kafka-connect-setup.sh:/setup.sh
-    command: ["/bin/bash", "/setup.sh"]
+      - ./clickhouse/kafka-connect-entrypoint.sh:/entrypoint.sh
+    entrypoint: [ "/bin/bash", "/entrypoint.sh" ]
     networks:
       - general-network
 
