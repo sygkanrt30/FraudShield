@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: fraud-detector
+  datasource:
+    url: jdbc:clickhouse://clickhouse:8123/transactions
+    username: fraud_detector
+    password: fraud_detector_pass
+    driver-class-name: com.clickhouse.jdbc.ClickHouseDriver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
