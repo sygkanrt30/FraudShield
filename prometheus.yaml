@@ -13,6 +13,11 @@ scrape_configs:
     static_configs:
       - targets: [ 'graph-ingress-service:8081' ]
 
+  - job_name: 'dlq-worker'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'dlq-worker:8086' ]
+
   - job_name: 'kafka-exporter'
     static_configs:
       - targets: [ 'host.docker.internal:9308' ]
