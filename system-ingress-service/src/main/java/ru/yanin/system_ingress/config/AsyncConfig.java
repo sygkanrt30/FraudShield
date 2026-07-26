@@ -1,5 +1,6 @@
 package ru.yanin.system_ingress.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -17,7 +18,8 @@ public class AsyncConfig {
     private static final String THREAD_NAME = "transactions-worker";
 
     @Bean(name = "producerTransactionsExecutor")
-    public ExecutorService producerTransactionsExecutor() {
-        return Executors.newFixedThreadPool(15, r -> new Thread(r, THREAD_NAME));
+    public ExecutorService producerTransactionsExecutor(
+            @Value("${executor.transaction.producer.nThread}") int nThreads) {
+        return Executors.newFixedThreadPool(nThreads, r -> new Thread(r, THREAD_NAME));
     }
 }

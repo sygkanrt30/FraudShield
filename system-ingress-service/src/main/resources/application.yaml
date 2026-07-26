@@ -39,6 +39,11 @@ spring:
         delivery.timeout.ms: 120000
         request.timeout.ms: 30000
 
+executor:
+  transaction:
+    producer:
+      nThread: 15
+
 app:
   kafka:
     resend:
