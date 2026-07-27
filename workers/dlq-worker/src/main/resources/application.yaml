@@ -1,3 +1,97 @@
 spring:
   application:
-    name: dlq-worker
+    name: dlq-worker-service
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: dlq-worker-group
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "ru.yanin.shared."
+        spring.json.value.default.type: ru.yanin.shared.domain.TransactionEvent
+        max.poll.records: 100
+        fetch.min.bytes: 1024
+        fetch.max.wait.ms: 5000
+        session.timeout.ms: 30000
+        heartbeat.interval.ms: 3000
+        max.poll.interval.ms: 300000
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+      retries: 3
+      acks: all
+    listener:
+      ack-mode: manual
+      concurrency: 10
+      missing-topics-fatal: false
+  data:
+    redis:
+      host: localhost
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
+      database: 0
+      timeout: 5000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 4
+          min-idle: 2
+          max-wait: 2000ms
+        shutdown-timeout: 100ms
+      key:
+        prefix:
+          processed: "dlq:processed:"
+          retry: "dlq:retry:"
+          lock: "dlq:lock:"
+          dead: "dlq:dead:"
+
+  datasource:
+    driver-class-name: com.clickhouse.jdbc.ClickHouseDriver
+    url: jdbc:clickhouse://localhost:8123/transactions
+    username: default
+    password:
+    hikari:
+      maximum-pool-size: 5
+      minimum-idle: 2
+      idle-timeout: 300000
+      connection-timeout: 30000
+      max-lifetime: 1800000
+
+app:
+  kafka:
+    topics:
+      dlq: raw-transactions-dlq
+      dead: fraud-dlq-dead
+
+management:
+  server:
+    port: 8086
+  endpoints:
+    web:
+      exposure:
+        include: health, metrics, prometheus, info
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+      probes:
+        enabled: true
+  metrics:
+    tags:
+      application: dlq-worker-service
+      environment: dev
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+logging:
+  level:
+    root: info
+  pattern:
+    console: '%d{dd.MM.yyyy HH:mm:ss.SSS} [%thread] %clr(%-5level) %logger{36} - %msg%n'
