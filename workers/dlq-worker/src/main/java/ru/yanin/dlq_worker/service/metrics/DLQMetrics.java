@@ -29,7 +29,6 @@ public class DLQMetrics {
 
     private final AtomicLong queueSize = new AtomicLong(0L);
     private final AtomicLong deadQueueSize = new AtomicLong(0L);
-    private final AtomicLong retryCount = new AtomicLong(0L);
 
     private final Timer insertTimer;
 
@@ -68,7 +67,6 @@ public class DLQMetrics {
 
         meterRegistry.gauge("dlq.queue.size", queueSize);
         meterRegistry.gauge("dlq.dead.queue.size", deadQueueSize);
-        meterRegistry.gauge("dlq.retry.count", retryCount);
 
         this.insertTimer = Timer.builder("dlq.insert.duration")
                 .description("Time taken to insert transaction into ClickHouse")
@@ -117,10 +115,6 @@ public class DLQMetrics {
 
     public void setDeadQueueSize(int size) {
         deadQueueSize.set(size);
-    }
-
-    public void setRetryCount(int count) {
-        retryCount.set(count);
     }
 
     public Timer.Sample startInsertTimer() {

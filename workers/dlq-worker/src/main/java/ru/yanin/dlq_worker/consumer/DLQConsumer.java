@@ -61,22 +61,22 @@ public class DLQConsumer {
             return;
         }
 
-        if (transactionService.transactionAlreadyExists(txId)) {
+        if (!dbAvailableChecker.isAvailable()) {
             try {
-                stateStorage.markAsProcessed(stringTxId);
-                metrics.incrementAlreadyExists();
-                log.debug("Transaction with id {} has already in db", txId);
-                ack.acknowledge();
+                metrics.incrementDBUnavailable();
+                log.error("Database isn't available");
                 return;
             } finally {
                 stateStorage.unlock(stringTxId);
             }
         }
 
-        if (!dbAvailableChecker.isAvailable()) {
+        if (transactionService.transactionAlreadyExists(txId)) {
             try {
-                metrics.incrementDBUnavailable();
-                log.error("Database isn't available");
+                stateStorage.markAsProcessed(stringTxId);
+                metrics.incrementAlreadyExists();
+                log.debug("Transaction with id {} has already in db", txId);
+                ack.acknowledge();
                 return;
             } finally {
                 stateStorage.unlock(stringTxId);

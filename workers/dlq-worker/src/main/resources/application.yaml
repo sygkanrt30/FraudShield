@@ -99,6 +99,8 @@ executor:
   transaction:
     producer:
       nThread: 7
+      thread:
+        name: transactions-producer-worker
 
 app:
   kafka:

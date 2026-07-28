@@ -15,11 +15,11 @@ import java.util.concurrent.Executors;
 @EnableAsync
 public class AsyncConfig {
 
-    private static final String THREAD_NAME = "transactions-producer-worker";
-
     @Bean(name = "producerTransactionsExecutor")
     public ExecutorService producerTransactionsExecutor(
-            @Value("${executor.transaction.producer.nThread}") int nThreads) {
-        return Executors.newFixedThreadPool(nThreads, r -> new Thread(r, THREAD_NAME));
+            @Value("${executor.transaction.producer.nThread}") int nThreads,
+            @Value("${executor.transaction.producer.thread.name}") String threadName) {
+
+        return Executors.newFixedThreadPool(nThreads, r -> new Thread(r, threadName));
     }
 }
