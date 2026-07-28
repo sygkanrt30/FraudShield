@@ -1,4 +1,4 @@
-package ru.yanin.dlq_worker.consumer;
+package ru.yanin.dlq_worker.kafka.dq;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import ru.yanin.shared.domain.TransactionEvent;
 import ru.yanin.shared.producer.Producer;
 
+import java.time.Instant;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -18,9 +19,9 @@ import java.util.concurrent.ExecutorService;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class DeadQueueProducer implements Producer<TransactionEvent> {
+public class DQProducer implements Producer<TransactionEvent> {
 
-    private final KafkaTemplate<String, TransactionEvent> kafkaTemplate;
+    private final KafkaTemplate<String, DQTransactionEvent> kafkaTemplate;
     private final ExecutorService producerTransactionsExecutor;
 
     @Value("${app.kafka.topics.dead}")
@@ -28,7 +29,8 @@ public class DeadQueueProducer implements Producer<TransactionEvent> {
 
     @Override
     public void sendMessage(TransactionEvent event) {
-        CompletableFuture.runAsync(() -> kafkaTemplate.send(topic, event), producerTransactionsExecutor)
+        var dqEvent = new DQTransactionEvent(event, Instant.now());
+        CompletableFuture.runAsync(() -> kafkaTemplate.send(topic, dqEvent), producerTransactionsExecutor)
                 .whenComplete((result, throwable) -> {
                     if (Objects.isNull(throwable)) {
                         log.info("Transaction with id {} sent to DQ", event.transactionId());
