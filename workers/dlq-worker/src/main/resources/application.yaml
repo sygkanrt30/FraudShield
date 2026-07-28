@@ -77,7 +77,6 @@ resilience4j:
           - org.springframework.dao.DataAccessResourceFailureException
         ignoreExceptions:
           - java.lang.IllegalArgumentException
-
   circuitbreaker:
     instances:
       clickhouseInsert:
@@ -90,12 +89,16 @@ resilience4j:
         slowCallRateThreshold: 50
         slowCallDurationThreshold: 5s
         registerHealthIndicator: true
-
   timelimiter:
     instances:
       clickhouseInsert:
         timeoutDuration: 5s
         cancelRunningFuture: true
+
+executor:
+  transaction:
+    producer:
+      nThread: 7
 
 app:
   kafka:

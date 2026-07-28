@@ -30,9 +30,9 @@ public class TransactionServiceImpl implements TransactionService {
         return repository.existsById(txId);
     }
 
-    @Retry(name = "clickhouseInsert")
-    @CircuitBreaker(name = "clickhouseInsert")
-    @TimeLimiter(name = "clickhouseInsert")
+    @Retry(name = "clickhouseInsert", fallbackMethod = "fallbackInsert")
+    @CircuitBreaker(name = "clickhouseInsert", fallbackMethod = "fallbackInsert")
+    @TimeLimiter(name = "clickhouseInsert", fallbackMethod = "fallbackInsert")
     public CompletableFuture<Boolean> insertTransactionAsync(TransactionEvent event, long offset) {
         return CompletableFuture.supplyAsync(() -> {
             try {
