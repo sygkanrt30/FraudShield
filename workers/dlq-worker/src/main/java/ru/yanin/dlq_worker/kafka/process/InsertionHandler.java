@@ -32,9 +32,9 @@ public final class InsertionHandler {
         try {
             if (insertSuccess) {
                 markAsProcessed(sample, stringTxId);
-                return;
+            } else {
+                sendToDQ(event, stringTxId);
             }
-            sendToDQ(event, stringTxId);
         } finally {
             ack.acknowledge();
             stateStorage.unlock(stringTxId);
