@@ -14,12 +14,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EventProcessor {
 
-    private final ChecksPipeline checksPipeline;
+    private final PipelineChecks pipelineChecks;
     private final InsertionHandler insertionHandler;
 
     public void process(TransactionEvent event, Acknowledgment ack, long offset) {
         UUID txId = event.transactionId();
-        boolean allChecksSuccess = checksPipeline.flow(txId, ack);
+        boolean allChecksSuccess = pipelineChecks.flow(txId, ack);
         if (!allChecksSuccess) {
             return;
         }

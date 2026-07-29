@@ -17,7 +17,7 @@ import java.util.UUID;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-final class ChecksPipeline {
+final class PipelineChecks {
 
     private final TransactionStateStorage stateStorage;
     private final DLQMetrics metrics;
