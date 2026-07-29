@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
+import ru.yanin.dlq_worker.service.metrics.DLQMetrics;
 import ru.yanin.shared.domain.TransactionEvent;
 import ru.yanin.shared.producer.Producer;
 
@@ -23,12 +24,14 @@ public class DQProducer implements Producer<TransactionEvent> {
 
     private final KafkaTemplate<String, DQTransactionEvent> kafkaTemplate;
     private final ExecutorService producerTransactionsExecutor;
+    private final DLQMetrics metrics;
 
     @Value("${app.kafka.topics.dead}")
     private String topic;
 
     @Override
     public void sendMessage(TransactionEvent event) {
+        metrics.incrementDeadQueue();
         var dqEvent = new DQTransactionEvent(event, Instant.now());
         CompletableFuture.runAsync(() -> kafkaTemplate.send(topic, dqEvent), producerTransactionsExecutor)
                 .whenComplete((result, throwable) -> {
