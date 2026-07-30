@@ -1,16 +1,15 @@
 package ru.yanin.dlq_worker.kafka.process.checks;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
+import ru.yanin.dlq_worker.kafka.process.checks.util.ProcessingChainFactory;
 
 import java.util.UUID;
 
 /**
  * @author Vyacheslav Yanin
  */
-@Slf4j
 @Component
 @RequiredArgsConstructor
 public final class PipelineChecks {
