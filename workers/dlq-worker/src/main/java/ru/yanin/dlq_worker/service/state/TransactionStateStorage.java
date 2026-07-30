@@ -20,10 +20,6 @@ public interface TransactionStateStorage {
     default void markAsProcessed(String txId) {
         markAsProcessed(txId, 86400); // 24 hours
     }
-    
-    int incrementAndGetRetryCount(String txId);
-    
-    void clearRetryCount(String txId);
 
     /**
      * Checks whether the transaction has already been sent to the DQ.

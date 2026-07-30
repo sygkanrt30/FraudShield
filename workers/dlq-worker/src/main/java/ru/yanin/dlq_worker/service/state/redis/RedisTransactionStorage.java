@@ -37,22 +37,6 @@ public class RedisTransactionStorage implements TransactionStateStorage {
     }
 
     @Override
-    public int incrementAndGetRetryCount(String txId) {
-        String key = keyPrefixes.retry() + txId;
-        Long newCount = redisTemplate.opsForValue().increment(key);
-        redisTemplate.expire(key, 1, TimeUnit.HOURS);
-        log.debug("Retry count for {} is {}", txId, newCount);
-        return newCount != null ? newCount.intValue() : 0;
-    }
-
-    @Override
-    public void clearRetryCount(String txId) {
-        String key = keyPrefixes.retry() + txId;
-        redisTemplate.delete(key);
-        log.debug("Cleared retry count for {}", txId);
-    }
-
-    @Override
     public boolean isAlreadyInDeadQueue(String txId) {
         String key = keyPrefixes.dead() + txId;
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
