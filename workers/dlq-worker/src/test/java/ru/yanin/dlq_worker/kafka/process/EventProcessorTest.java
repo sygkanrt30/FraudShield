@@ -6,6 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.support.Acknowledgment;
+import ru.yanin.dlq_worker.kafka.process.checks.PipelineChecks;
 import ru.yanin.shared.domain.ClientDto;
 import ru.yanin.shared.domain.Currency;
 import ru.yanin.shared.domain.TransactionEvent;

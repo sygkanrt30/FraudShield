@@ -3,6 +3,7 @@ package ru.yanin.dlq_worker.kafka.process;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
+import ru.yanin.dlq_worker.kafka.process.checks.PipelineChecks;
 import ru.yanin.shared.domain.TransactionEvent;
 
 import java.util.UUID;
