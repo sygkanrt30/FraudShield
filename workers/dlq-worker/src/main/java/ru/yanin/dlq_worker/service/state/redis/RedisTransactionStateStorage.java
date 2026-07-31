@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class RedisTransactionStorage implements TransactionStateStorage {
+public class RedisTransactionStateStorage implements TransactionStateStorage {
 
     private final StringRedisTemplate redisTemplate;
     private final KeyPrefixes keyPrefixes;
