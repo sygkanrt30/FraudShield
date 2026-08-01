@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import ru.yanin.shared.domain.TransactionEvent;
 
 import java.util.UUID;
@@ -18,10 +17,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ClickHouseTransactionRepository implements TransactionRepository {
 
-    private NamedParameterJdbcTemplate jdbc;
+    private final NamedParameterJdbcTemplate jdbc;
 
     @Override
-    @Transactional
     public boolean save(TransactionEvent event, long offset) {
         var params = new MapSqlParameterSource()
                 .addValue("txId", event.transactionId().toString())
