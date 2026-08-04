@@ -37,10 +37,6 @@ public class DLQMetrics {
         getCounter(Counters.DLQ_ALREADY_EXISTS_TOTAL).increment();
     }
 
-    public void incrementRecovered() {
-        getCounter(Counters.DLQ_RECOVERED_TOTAL).increment();
-    }
-
     public void incrementDBUnavailable() {
         getCounter(Counters.DLQ_CH_UNAVAILABLE_TOTAL).increment();
     }

@@ -25,9 +25,6 @@ public enum Counters {
     DLQ_ALREADY_EXISTS_TOTAL(Counter.builder("dlq.already.exists.total")
             .description("Total transactions already present in ClickHouse")),
 
-    DLQ_RECOVERED_TOTAL(Counter.builder("dlq.recovered.total")
-            .description("Total transactions recovered from dead queue")),
-
     DLQ_CH_UNAVAILABLE_TOTAL(Counter.builder("dlq.ch.unavailable.total")
             .description("Total ClickHouse unavailable events")),
 
