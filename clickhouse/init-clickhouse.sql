@@ -4,8 +4,8 @@ USE transactions;
 
 CREATE TABLE IF NOT EXISTS transactions (
     txId String,
-    fromClientId UInt64,
-    toClientId UInt64,
+    fromClientId String,
+    toClientId String,
     amount Decimal(18,2),
     currency String DEFAULT 'RUB',
     timestamp DateTime,
@@ -21,7 +21,7 @@ ORDER BY (fromClientId, toClientId, timestamp)
 SETTINGS index_granularity = 8192;
 
 CREATE TABLE IF NOT EXISTS fraud_metrics (
-    clientId UInt64,
+    clientId String,
     metricDate Date,
     totalSentToHubs Float64,
     txCountToHubs UInt32,

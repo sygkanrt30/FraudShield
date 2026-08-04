@@ -1,5 +1,6 @@
 package ru.yanin.dlq_worker.clickhouse;
 
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,9 @@ import org.testcontainers.clickhouse.ClickHouseContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
-import org.testcontainers.utility.MountableFile;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * @author Vyacheslav Yanin
@@ -28,35 +31,31 @@ public abstract class BaseClickhouseTest {
             new ClickHouseContainer(DockerImageName.parse("clickhouse/clickhouse-server:latest"))
                     .withDatabaseName("transactions");
 
-    private static final String INIT_SQL_PATH = "../../../clickhouse/init-clickhouse.sql";
+    private static final String INIT_SQL_PATH = "src/test/resources/test-init-clickhouse.sql";
 
-    static {
-        clickhouse.start();
-        try {
-            clickhouse.copyFileToContainer(
-                    MountableFile.forHostPath(INIT_SQL_PATH),
-                    "/tmp/init.sql"
-            );
-
-            var result = clickhouse.execInContainer(
-                    "bash", "-c",
-                    "cat /tmp/init.sql | clickhouse-client --database=transactions --multiquery"
-            );
-
-            if (result.getExitCode() != 0) {
-                log.error("Init stderr: {}", result.getStderr());
-                log.error("Init stdout: {}", result.getStdout());
-                throw new RuntimeException("Init failed: " + result.getStderr());
-            }
-
-            log.info("ClickHouse initialized successfully");
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to init ClickHouse", e);
-        }
-    }
 
     @Autowired
     protected JdbcTemplate jdbcTemplate;
+
+    @PostConstruct
+    void initDatabase() {
+        try {
+            String sql = new String(Files.readAllBytes(Paths.get(INIT_SQL_PATH)));
+            for (String stmt : sql.split(";")) {
+                if (!stmt.trim().isEmpty()) {
+                    try {
+                        jdbcTemplate.execute(stmt.trim());
+                    } catch (Exception e) {
+                        log.warn("Statement failed: {}", stmt, e);
+                    }
+                }
+            }
+            log.info("Database initialized successfully");
+        } catch (Exception e) {
+            log.error("Failed to initialize database", e);
+            throw new RuntimeException(e);
+        }
+    }
 
     @BeforeEach
     void clear() {

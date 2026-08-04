@@ -26,7 +26,7 @@ public class ClickHouseTransactionRepository implements TransactionRepository {
                 .addValue("fromClientId", event.from().id())
                 .addValue("toClientId", event.to().id())
                 .addValue("amount", event.amount())
-                .addValue("currency", event.currency())
+                .addValue("currency", event.currency().toString())
                 .addValue("timestamp", event.createdAt())
                 .addValue("kafkaOffset", offset);
 
@@ -35,7 +35,7 @@ public class ClickHouseTransactionRepository implements TransactionRepository {
     }
 
     private boolean isSaved(TransactionEvent event, int affectedRows) {
-        if (affectedRows == 1) {
+        if (affectedRows >= 1) {
             log.trace("Transaction with id {} saved in CH", event.transactionId());
             return true;
         }

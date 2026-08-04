@@ -15,12 +15,10 @@ enum SqlQuery {
     INSERT("""
             INSERT INTO transactions (
                 txId, fromClientId, toClientId, amount,
-                currency, timestamp, status, isFraud,
-                riskScore, fraudReason, processedAt, kafkaOffset
+                currency, timestamp, kafkaOffset
             ) VALUES (
                 :txId, :fromClientId, :toClientId, :amount,
-                :currency, :timestamp, :status, :isFraud,
-                :riskScore, :fraudReason, :processedAt, :kafkaOffset
+                :currency, :timestamp, :kafkaOffset
             )
             """),
 
