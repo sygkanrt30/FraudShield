@@ -7,7 +7,18 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 /**
+ * Checks the availability of the ClickHouse database.
+ * <p>
+ * This component implements a simple health check by executing a lightweight
+ * query against the ClickHouse database.
+ * <p>
+ * The check is performed with a short timeout (4 seconds) to ensure fast
+ * failure detection and prevent blocking in case of database unavailability.
+ * <p>
+ *
  * @author Vyacheslav Yanin
+ * @see DBAvailableChecker
+ * @see JdbcTemplate
  */
 @Slf4j
 @Service
