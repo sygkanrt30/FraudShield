@@ -18,6 +18,11 @@ scrape_configs:
     static_configs:
       - targets: [ 'dlq-worker:8086' ]
 
+  - job_name: 'fraud-detector'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: [ 'fraud-detector:8082' ]
+
   - job_name: 'kafka-exporter'
     static_configs:
       - targets: [ 'host.docker.internal:9308' ]
