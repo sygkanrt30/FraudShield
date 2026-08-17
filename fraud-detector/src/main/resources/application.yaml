@@ -52,6 +52,7 @@ app:
       raw-transactions: raw-transactions
       alert: fraud-alerts
 
+
 executor:
   transaction:
     producer:
@@ -86,3 +87,9 @@ logging:
     root: info
   pattern:
     console: '%d{dd.MM.yyyy HH:mm:ss.SSS} [%thread] %clr(%-5level) %logger{36} - %msg%n'
+
+
+resilience4j:
+  retry:
+    initial-interval: 300
+    multiplier: 2.0

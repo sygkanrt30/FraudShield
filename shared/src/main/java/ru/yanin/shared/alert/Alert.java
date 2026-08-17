@@ -30,7 +30,7 @@ public class Alert {
 
     private AlertType alertType;
     private AlertStatus status;
-    private AlertReason reason;
+    private AlertReason[] reasons;
     private Double riskScore;
 
     private String source;

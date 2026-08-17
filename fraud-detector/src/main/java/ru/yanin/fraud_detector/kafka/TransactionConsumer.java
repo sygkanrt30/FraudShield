@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
+import ru.yanin.fraud_detector.service.neo4j.TransactionExistenceChecker;
 import ru.yanin.fraud_detector.service.pipeline.Pipeline;
 import ru.yanin.shared.domain.TransactionEvent;
 
@@ -17,6 +18,7 @@ import ru.yanin.shared.domain.TransactionEvent;
 public class TransactionConsumer {
 
     private final Pipeline pipeline;
+    private final TransactionExistenceChecker transactionExistenceChecker;
 
     @KafkaListener(
             groupId = "${spring.kafka.consumer.group-id}",
@@ -26,6 +28,10 @@ public class TransactionConsumer {
     public void consume(TransactionEvent event, Acknowledgment ack) {
         log.info("Consume event {}", event);
         try {
+            boolean isAlreadySaved = transactionExistenceChecker.isTransactionAlreadySavedWithRetry(event);
+            if (!isAlreadySaved) {
+                return;
+            }
             pipeline.flow(event);
             ack.acknowledge();
         } catch (Exception e) {
