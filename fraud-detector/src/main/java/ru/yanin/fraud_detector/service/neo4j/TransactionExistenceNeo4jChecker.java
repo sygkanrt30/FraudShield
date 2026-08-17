@@ -4,7 +4,7 @@ import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yanin.fraud_detector.repo.neo4j.TransactionNeo4jRepository;
+import ru.yanin.fraud_detector.repo.neo4j.ClientNeo4jRepository;
 import ru.yanin.shared.domain.TransactionEvent;
 
 /**
@@ -15,12 +15,12 @@ import ru.yanin.shared.domain.TransactionEvent;
 @RequiredArgsConstructor
 public class TransactionExistenceNeo4jChecker implements TransactionExistenceChecker {
 
-    private final TransactionNeo4jRepository transactionNeo4jRepository;
+    private final ClientNeo4jRepository clientNeo4JRepository;
 
     @Override
     @Retry(name = "transactionExistsRetry")
     public boolean isTransactionAlreadySavedWithRetry(TransactionEvent transaction) {
-        return transactionNeo4jRepository.existsByTransactionId(transaction.transactionId());
+        return clientNeo4JRepository.existsByTransactionId(transaction.transactionId());
     }
 
     @SuppressWarnings("unused")
