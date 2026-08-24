@@ -93,3 +93,9 @@ resilience4j:
   retry:
     initial-interval: 300
     multiplier: 2.0
+
+
+detection:
+  hub:
+    threshold:
+      lower: 0.5
