@@ -30,6 +30,7 @@ public class TransactionConsumer {
         try {
             boolean isAlreadySaved = transactionExistenceChecker.isTransactionAlreadySavedWithRetry(event);
             if (!isAlreadySaved) {
+                //send to manual review
                 return;
             }
             pipeline.flow(event);
