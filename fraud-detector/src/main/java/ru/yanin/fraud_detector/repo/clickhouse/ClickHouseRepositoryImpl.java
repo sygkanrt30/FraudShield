@@ -13,6 +13,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static ru.yanin.fraud_detector.repo.clickhouse.FraudMetricsQuery.CALCULATE_FRAUD_METRICS_QUERY;
+import static ru.yanin.fraud_detector.repo.clickhouse.FraudMetricsQuery.GET_FRAUD_METRICS_QUERY;
+
 /**
  * @author Vyacheslav Yanin
  */
@@ -20,25 +23,29 @@ import java.util.stream.Collectors;
 @Repository
 public class ClickHouseRepositoryImpl implements ClickHouseRepository {
 
-    private static final String GET_FRAUD_METRICS_QUERY =
-            "SELECT * FROM fraud_metrics WHERE calculatedAt >= now() - INTERVAL '1 HOUR' HOUR AND clientId IN (:hubs)";
-
     private final NamedParameterJdbcTemplate jdbcTemplate;
     private final ResultSetExtractor<FraudMetricsByClient> resultSetExtractor =
             new FraudMetricsByClientResultSetExtractor();
 
     @Override
     public Optional<FraudMetricsByClient> getMetrics(Set<PageRankResult> hubs) {
-        Set<UUID> hubClientIds = hubs.stream()
+        Set<UUID> hubClientIds = mapToIdsSet(hubs);
+        return Optional.ofNullable(jdbcTemplate.query(GET_FRAUD_METRICS_QUERY.query(), getParams(hubClientIds), resultSetExtractor));
+    }
+
+    private Set<UUID> mapToIdsSet(Set<PageRankResult> hubs) {
+        return hubs.stream()
                 .map(PageRankResult::clientId)
                 .collect(Collectors.toSet());
-        
-        var params = new MapSqlParameterSource().addValue("hubs", hubClientIds);
-        return Optional.ofNullable(jdbcTemplate.query(GET_FRAUD_METRICS_QUERY, params, resultSetExtractor));
+    }
+
+    private MapSqlParameterSource getParams(Set<UUID> hubClientIds) {
+        return new MapSqlParameterSource().addValue("hubs", hubClientIds);
     }
 
     @Override
     public FraudMetricsByClient calculateAndGetMetrics(Set<PageRankResult> hubs) {
-        return null;
+        Set<UUID> hubClientIds = mapToIdsSet(hubs);
+        return jdbcTemplate.query(CALCULATE_FRAUD_METRICS_QUERY.query(), getParams(hubClientIds), resultSetExtractor);
     }
 }
