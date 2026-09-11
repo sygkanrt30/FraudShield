@@ -7,6 +7,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import ru.yanin.fraud_detector.dto.FraudMetricsByClient;
 import ru.yanin.fraud_detector.dto.PageRankResult;
+import ru.yanin.shared.domain.ClientDto;
 
 import java.util.Optional;
 import java.util.Set;
@@ -28,9 +29,10 @@ public class ClickHouseRepositoryImpl implements ClickHouseRepository {
             new FraudMetricsByClientResultSetExtractor();
 
     @Override
-    public Optional<FraudMetricsByClient> getMetrics(Set<PageRankResult> hubs) {
+    public Optional<FraudMetricsByClient> getMetrics(ClientDto from, ClientDto to, Set<PageRankResult> hubs) {
         Set<UUID> hubClientIds = mapToIdsSet(hubs);
-        return Optional.ofNullable(jdbcTemplate.query(GET_FRAUD_METRICS_QUERY.query(), getParams(hubClientIds), resultSetExtractor));
+        Set<UUID> clientIds = Set.of(from.id(), to.id());
+        return Optional.ofNullable(jdbcTemplate.query(GET_FRAUD_METRICS_QUERY.query(), getParams(clientIds, hubClientIds), resultSetExtractor));
     }
 
     private Set<UUID> mapToIdsSet(Set<PageRankResult> hubs) {
@@ -39,13 +41,16 @@ public class ClickHouseRepositoryImpl implements ClickHouseRepository {
                 .collect(Collectors.toSet());
     }
 
-    private MapSqlParameterSource getParams(Set<UUID> hubClientIds) {
-        return new MapSqlParameterSource().addValue("hubs", hubClientIds);
+    private MapSqlParameterSource getParams(Set<UUID> clientIds, Set<UUID> hubClientIds) {
+        return new MapSqlParameterSource()
+                .addValue("clientIds", clientIds)
+                .addValue("hubs", hubClientIds);
     }
 
     @Override
-    public FraudMetricsByClient calculateAndGetMetrics(Set<PageRankResult> hubs) {
+    public FraudMetricsByClient calculateAndGetMetrics(ClientDto from, ClientDto to, Set<PageRankResult> hubs) {
         Set<UUID> hubClientIds = mapToIdsSet(hubs);
-        return jdbcTemplate.query(CALCULATE_FRAUD_METRICS_QUERY.query(), getParams(hubClientIds), resultSetExtractor);
+        Set<UUID> clientIds = Set.of(from.id(), to.id());
+        return jdbcTemplate.query(CALCULATE_FRAUD_METRICS_QUERY.query(), getParams(clientIds, hubClientIds), resultSetExtractor);
     }
 }

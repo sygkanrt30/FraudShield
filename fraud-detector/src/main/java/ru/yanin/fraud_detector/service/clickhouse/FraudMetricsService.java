@@ -3,6 +3,7 @@ package ru.yanin.fraud_detector.service.clickhouse;
 
 import ru.yanin.fraud_detector.dto.FraudMetricsByClient;
 import ru.yanin.fraud_detector.dto.PageRankResult;
+import ru.yanin.shared.domain.ClientDto;
 
 import java.util.Set;
 
@@ -11,5 +12,5 @@ import java.util.Set;
  */
 public interface FraudMetricsService {
 
-    FraudMetricsByClient getOrCalculateMetrics(Set<PageRankResult> hubs);
+    FraudMetricsByClient getOrCalculateMetrics(ClientDto from, ClientDto to, Set<PageRankResult> hubs);
 }

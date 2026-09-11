@@ -14,7 +14,7 @@ enum FraudMetricsQuery {
 
     GET_FRAUD_METRICS_QUERY("SELECT * FROM fraud_metrics " +
             "WHERE calculatedAt >= now() - INTERVAL '1 HOUR' HOUR " +
-            "AND clientId IN (:hubs)"),
+            "AND clientId IN (:clientIds)"),
 
     CALCULATE_FRAUD_METRICS_QUERY("""
             WITH
@@ -29,6 +29,7 @@ enum FraudMetricsQuery {
                         count() AS txCount,
                         avg(amount) AS avgCheque
                     FROM transactions
+                    WHERE fromClientId IN (:clientIds)
                     GROUP BY fromClientId, toDate(timestamp)
                 ),
                 weekly_growth AS (
@@ -58,6 +59,7 @@ enum FraudMetricsQuery {
                         AND t.toClientId = t2.toClientId
                         AND t2.timestamp >= t.timestamp - toIntervalDay(7)
                         AND t2.timestamp < t.timestamp
+                    WHERE t.fromClientId IN (:clientIds)
                     GROUP BY t.fromClientId, toDate(t.timestamp)
                 )
             SELECT
