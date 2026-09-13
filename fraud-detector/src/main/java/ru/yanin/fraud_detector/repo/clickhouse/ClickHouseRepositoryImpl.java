@@ -32,7 +32,8 @@ public class ClickHouseRepositoryImpl implements ClickHouseRepository {
     public Optional<FraudMetricsByClient> getMetrics(ClientDto from, ClientDto to, Set<PageRankResult> hubs) {
         Set<UUID> hubClientIds = mapToIdsSet(hubs);
         Set<UUID> clientIds = Set.of(from.id(), to.id());
-        return Optional.ofNullable(jdbcTemplate.query(GET_FRAUD_METRICS_QUERY.query(), getParams(clientIds, hubClientIds), resultSetExtractor));
+        return Optional.ofNullable(
+                jdbcTemplate.query(GET_FRAUD_METRICS_QUERY.query(), getParams(clientIds, hubClientIds), resultSetExtractor));
     }
 
     private Set<UUID> mapToIdsSet(Set<PageRankResult> hubs) {
