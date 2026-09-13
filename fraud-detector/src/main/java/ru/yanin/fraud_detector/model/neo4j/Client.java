@@ -54,22 +54,9 @@ public class Client {
     @Property("txCountToHubs")
     private long txCountToHubs;
 
-    @Property("isHub")
-    private boolean isHub;
-
-    @Property("isInCycle")
-    private boolean isInCycle;
-
     @Property("isVictim")
     private boolean isVictim;
 
     @Property("lastCheckedAt")
     private Instant lastCheckedAt;
-
-    public static Client of(UUID clientId, String fullName) {
-        Client client = new Client();
-        client.clientId = clientId;
-        client.fullName = fullName;
-        return client;
-    }
 }
