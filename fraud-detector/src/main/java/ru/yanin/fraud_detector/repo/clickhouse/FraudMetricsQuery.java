@@ -81,6 +81,16 @@ enum FraudMetricsQuery {
                 ON dm.clientId = wg.clientId AND dm.metricDate = wg.metricDate
             LEFT JOIN new_recipients nr
                 ON dm.clientId = nr.clientId AND dm.metricDate = nr.metricDate
+            """),
+
+    UPDATE_TRANSACTION_STATUS_QUERY("""
+            INSERT INTO transactions (
+                txId, fromClientId, toClientId, amount,
+                currency, timestamp, status, isFraud, riskScore, fraudReason, processedAt
+            ) VALUES (
+                :txId, :fromClientId, :toClientId, :amount,
+                :currency, :timestamp, :status, :isFraud, :riskScore, :fraudReason, now()
+            )
             """);
 
     private final String query;

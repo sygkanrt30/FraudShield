@@ -1,4 +1,4 @@
-package ru.yanin.fraud_detector.dto;
+package ru.yanin.fraud_detector.model.clickhouse;
 
 import lombok.Builder;
 import lombok.Data;

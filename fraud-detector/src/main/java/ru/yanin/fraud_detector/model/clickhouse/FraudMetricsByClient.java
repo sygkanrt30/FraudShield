@@ -1,7 +1,9 @@
-package ru.yanin.fraud_detector.dto;
+package ru.yanin.fraud_detector.model.clickhouse;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import ru.yanin.fraud_detector.dto.CalculationMethod;
+import ru.yanin.fraud_detector.dto.PageRankResult;
 
 import java.math.BigDecimal;
 import java.time.Instant;

@@ -3,7 +3,7 @@ package ru.yanin.fraud_detector.service.risk;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yanin.fraud_detector.dto.FraudMetrics;
+import ru.yanin.fraud_detector.model.clickhouse.FraudMetrics;
 import ru.yanin.fraud_detector.dto.RiskScores;
 
 import java.math.BigDecimal;
