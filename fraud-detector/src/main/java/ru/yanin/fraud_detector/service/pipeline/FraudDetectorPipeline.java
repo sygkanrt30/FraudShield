@@ -34,7 +34,7 @@ public class FraudDetectorPipeline implements Pipeline {
         try {
             Stream.of(fastDetector, fullDetector)
                     .map(detector -> detector.detect(transaction))
-                    .filter(result -> alertResolver.isAlertNeeded(result.statusClientsContainer()))
+                    .filter(alertResolver::isAlertNeeded)
                     .findFirst()
                     .ifPresent(result -> {
                         Alert alert = alertResolver.resolve(transaction, result);

@@ -2,7 +2,7 @@ package ru.yanin.fraud_detector.service.clickhouse;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yanin.fraud_detector.dto.FraudMetricsByClient;
+import ru.yanin.fraud_detector.model.clickhouse.FraudMetricsByClient;
 import ru.yanin.fraud_detector.dto.PageRankResult;
 import ru.yanin.fraud_detector.repo.clickhouse.ClickHouseRepository;
 import ru.yanin.shared.domain.ClientDto;

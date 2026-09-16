@@ -2,8 +2,8 @@ package ru.yanin.fraud_detector.repo.clickhouse;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import ru.yanin.fraud_detector.dto.FraudMetrics;
-import ru.yanin.fraud_detector.dto.FraudMetricsByClient;
+import ru.yanin.fraud_detector.model.clickhouse.FraudMetrics;
+import ru.yanin.fraud_detector.model.clickhouse.FraudMetricsByClient;
 
 import java.math.BigDecimal;
 import java.sql.Date;

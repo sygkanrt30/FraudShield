@@ -12,7 +12,6 @@ import ru.yanin.fraud_detector.service.detectors.Detector;
 import ru.yanin.fraud_detector.service.detectors.FraudStatus;
 import ru.yanin.fraud_detector.service.neo4j.ClientGraphReader;
 import ru.yanin.fraud_detector.service.pipeline.DetectorSolution;
-import ru.yanin.fraud_detector.service.pipeline.FraudStatusClientsContainer;
 import ru.yanin.shared.domain.TransactionEvent;
 
 /**
@@ -37,11 +36,16 @@ public class Neo4jFastDetector implements Detector {
         boolean isNewRecipient = resolveIsNewRecipient(from, to);
 
         return DetectorSolution.builder()
-                .statusClientsContainer(new FraudStatusClientsContainer(fromClientStatus, toClientStatus))
-                .isCycle(from.isInCycle() || to.isInCycle())
-                .isHubTransfer(from.isHub() || to.isHub())
-                .overallRisk(from.getOverallRisk().doubleValue())
-                .newRecipient(isNewRecipient)
+                .from(DetectorSolution.ClientSolution.builder()
+                        .fraudStatus(fromClientStatus)
+                        .overallRisk(from.getOverallRisk().doubleValue())
+                        .newRecipient(false)
+                        .build())
+                .to(DetectorSolution.ClientSolution.builder()
+                        .fraudStatus(toClientStatus)
+                        .overallRisk(to.getOverallRisk().doubleValue())
+                        .newRecipient(isNewRecipient)
+                        .build())
                 .build();
     }
 
