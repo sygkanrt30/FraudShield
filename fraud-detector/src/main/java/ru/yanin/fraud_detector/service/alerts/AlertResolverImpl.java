@@ -41,32 +41,15 @@ public class AlertResolverImpl implements AlertResolver {
         List<AlertReason> reasons = getReasons(overallRisk, isNewRecipient);
         AlertType alertType = resolveAlertType(overallRisk, isNewRecipient);
         var status = overallRisk > HIGH_RISK_THRESHOLD ? AlertStatus.HIGH : AlertStatus.MEDIUM;
+        String comment = resolveComment(alertType, reasons);
 
-        var alert = Alert.builder()
-                .txId(transaction.transactionId().toString())
-                .fromClientId(transaction.from().id())
-                .toClientId(transaction.to().id())
-                .fromClientEmail(transaction.from().email())
-                .toClientEmail(transaction.to().email())
-                .fromClientName(transaction.from().fullName())
-                .toClientName(transaction.to().fullName())
-                .amount(transaction.amount())
-                .currency(transaction.currency().toString())
-                .timestamp(transaction.createdAt())
-                .alertType(alertType)
-                .status(status)
-                .riskScore(overallRisk)
-                .source("FRAUD_DETECTOR")
-                .createdAt(Instant.now())
-                .comment(resolveComment(alertType, reasons))
-                .build();
-
+        Alert alert = createAlert(transaction, alertType, status, overallRisk, comment);
         log.debug("Resolved {} alert for transaction {}", alertType, transaction.transactionId());
         return alert;
     }
 
     private List<AlertReason> getReasons(double overallRisk, boolean isNewRecipient) {
-        var reasons = new ArrayList<AlertReason>();
+        List<AlertReason> reasons = new ArrayList<>();
         if (overallRisk > HIGH_RISK_THRESHOLD) {
             reasons.add(AlertReason.HIGH_RISK_SCORE);
         } else if (overallRisk > MEDIUM_RISK_THRESHOLD) {
@@ -96,5 +79,31 @@ public class AlertResolverImpl implements AlertResolver {
                 .map(Enum::name)
                 .reduce((a, b) -> a + "," + b)
                 .orElse("");
+    }
+
+    private Alert createAlert(TransactionEvent transaction, AlertType alertType, AlertStatus status,
+                              double overallRisk, String comment) {
+        return Alert.builder()
+                .clientsInfo(Alert.ClientsInfo.builder()
+                        .fromClientId(transaction.from().id())
+                        .toClientId(transaction.to().id())
+                        .fromClientEmail(transaction.from().email())
+                        .toClientEmail(transaction.to().email())
+                        .fromClientName(transaction.from().fullName())
+                        .toClientName(transaction.to().fullName())
+                        .build())
+                .metadata(Alert.TransactionMetadata.builder()
+                        .txId(transaction.transactionId().toString())
+                        .amount(transaction.amount())
+                        .currency(transaction.currency().toString())
+                        .timestamp(transaction.createdAt())
+                        .build())
+                .alertType(alertType)
+                .status(status)
+                .riskScore(overallRisk)
+                .createdAt(Instant.now())
+                .source("FRAUD_DETECTOR")
+                .comment(comment)
+                .build();
     }
 }
