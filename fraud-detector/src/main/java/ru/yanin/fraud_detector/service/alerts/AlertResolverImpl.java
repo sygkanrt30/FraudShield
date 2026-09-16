@@ -4,9 +4,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yanin.fraud_detector.service.detectors.FraudStatus;
 import ru.yanin.fraud_detector.service.pipeline.DetectorSolution;
-import ru.yanin.fraud_detector.service.pipeline.FraudStatusClientsContainer;
 import ru.yanin.shared.alert.Alert;
+import ru.yanin.shared.alert.AlertReason;
+import ru.yanin.shared.alert.AlertStatus;
+import ru.yanin.shared.alert.AlertType;
 import ru.yanin.shared.domain.TransactionEvent;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Vyacheslav Yanin
@@ -15,14 +21,80 @@ import ru.yanin.shared.domain.TransactionEvent;
 @Service
 public class AlertResolverImpl implements AlertResolver {
 
+    private static final double HIGH_RISK_THRESHOLD = 0.6;
+    private static final double MEDIUM_RISK_THRESHOLD = 0.3;
+
     @Override
-    public boolean isAlertNeeded(FraudStatusClientsContainer statusClientsContainer) {
-        return !(statusClientsContainer.from().equals(FraudStatus.LOW) &&
-                statusClientsContainer.to().equals(FraudStatus.LOW));
+    public boolean isAlertNeeded(DetectorSolution detectorSolution) {
+        return !(detectorSolution.from().fraudStatus().equals(FraudStatus.LOW) &&
+                detectorSolution.to().fraudStatus().equals(FraudStatus.LOW));
     }
 
     @Override
     public Alert resolve(TransactionEvent transaction, DetectorSolution detectorSolution) {
-        return null;
+        double overallRisk = Math.max(
+                detectorSolution.from().overallRisk(),
+                detectorSolution.to().overallRisk());
+        boolean isNewRecipient = detectorSolution.from().newRecipient() ||
+                detectorSolution.to().newRecipient();
+
+        List<AlertReason> reasons = getReasons(overallRisk, isNewRecipient);
+        AlertType alertType = resolveAlertType(overallRisk, isNewRecipient);
+        var status = overallRisk > HIGH_RISK_THRESHOLD ? AlertStatus.HIGH : AlertStatus.MEDIUM;
+
+        var alert = Alert.builder()
+                .txId(transaction.transactionId().toString())
+                .fromClientId(transaction.from().id())
+                .toClientId(transaction.to().id())
+                .fromClientEmail(transaction.from().email())
+                .toClientEmail(transaction.to().email())
+                .fromClientName(transaction.from().fullName())
+                .toClientName(transaction.to().fullName())
+                .amount(transaction.amount())
+                .currency(transaction.currency().toString())
+                .timestamp(transaction.createdAt())
+                .alertType(alertType)
+                .status(status)
+                .riskScore(overallRisk)
+                .source("FRAUD_DETECTOR")
+                .createdAt(Instant.now())
+                .comment(resolveComment(alertType, reasons))
+                .build();
+
+        log.debug("Resolved {} alert for transaction {}", alertType, transaction.transactionId());
+        return alert;
+    }
+
+    private List<AlertReason> getReasons(double overallRisk, boolean isNewRecipient) {
+        var reasons = new ArrayList<AlertReason>();
+        if (overallRisk > HIGH_RISK_THRESHOLD) {
+            reasons.add(AlertReason.HIGH_RISK_SCORE);
+        } else if (overallRisk > MEDIUM_RISK_THRESHOLD) {
+            reasons.add(AlertReason.MEDIUM_RISK_SCORE);
+        }
+        if (isNewRecipient) {
+            reasons.add(AlertReason.NEW_RECIPIENT);
+        }
+        return reasons;
+    }
+
+    private AlertType resolveAlertType(double overallRisk, boolean isNewRecipient) {
+        if (overallRisk > HIGH_RISK_THRESHOLD) {
+            return AlertType.FRAUD_HIGH_RISK_BLOCKED;
+        }
+        if (overallRisk > MEDIUM_RISK_THRESHOLD) {
+            return AlertType.FRAUD_MEDIUM_RISK_WARNING;
+        }
+        if (isNewRecipient) {
+            return AlertType.FRAUD_NEW_RECIPIENT;
+        }
+        return AlertType.FRAUD_UNUSUAL_ACTIVITY;
+    }
+
+    private String resolveComment(AlertType alertType, List<AlertReason> reasons) {
+        return alertType.name() + ":" + reasons.stream()
+                .map(Enum::name)
+                .reduce((a, b) -> a + "," + b)
+                .orElse("");
     }
 }

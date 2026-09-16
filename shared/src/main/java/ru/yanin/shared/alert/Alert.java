@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.Instant;
+import java.util.UUID;
 
 /**
  * @author Vyacheslav Yanin
@@ -17,8 +19,8 @@ import java.math.BigDecimal;
 public class Alert {
 
     private String txId;
-    private Long fromClientId;
-    private Long toClientId;
+    private UUID fromClientId;
+    private UUID toClientId;
     private String fromClientEmail;
     private String toClientEmail;
     private String fromClientName;
@@ -26,15 +28,14 @@ public class Alert {
 
     private BigDecimal amount;
     private String currency;
-    private Long timestamp;
+    private Instant timestamp;
 
     private AlertType alertType;
     private AlertStatus status;
-    private AlertReason[] reasons;
-    private Double riskScore;
+    private double riskScore;
 
     private String source;
-    private Long createdAt;
+    private Instant createdAt;
     private String comment;
 
 }

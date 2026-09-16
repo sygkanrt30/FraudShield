@@ -1,7 +1,6 @@
 package ru.yanin.fraud_detector.service.alerts;
 
 import ru.yanin.fraud_detector.service.pipeline.DetectorSolution;
-import ru.yanin.fraud_detector.service.pipeline.FraudStatusClientsContainer;
 import ru.yanin.shared.alert.Alert;
 import ru.yanin.shared.domain.TransactionEvent;
 
@@ -10,7 +9,7 @@ import ru.yanin.shared.domain.TransactionEvent;
  */
 public interface AlertResolver {
 
-    boolean isAlertNeeded(FraudStatusClientsContainer statusClientsContainer);
+    boolean isAlertNeeded(DetectorSolution detectorSolution);
 
     Alert resolve(TransactionEvent transaction, DetectorSolution detectorSolution);
 }
