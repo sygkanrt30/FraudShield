@@ -69,7 +69,7 @@ public class RetryEventProcessor {
         for (TransactionRecord record : failed) {
             Timer.Sample sample = metrics.startTimer();
             TransactionEventWithTimer event = transactionEventMapper.toTransactionEventWithTimer(record, sample);
-            producer.sendMessage(event);
+            producer.sendEvent(event);
         }
     }
 }

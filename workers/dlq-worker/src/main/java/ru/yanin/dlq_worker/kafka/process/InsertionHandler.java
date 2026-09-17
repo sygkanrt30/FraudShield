@@ -50,7 +50,7 @@ public final class InsertionHandler {
 
     private void sendToDQ(TransactionEvent event, String stringTxId) {
         stateStorage.markAsDead(stringTxId);
-        deadQueueProducer.sendMessage(event);
+        deadQueueProducer.sendEvent(event);
         log.info("Transaction with id {} send to dead queue", stringTxId);
     }
 }

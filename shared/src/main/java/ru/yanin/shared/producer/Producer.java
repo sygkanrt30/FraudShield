@@ -5,5 +5,5 @@ package ru.yanin.shared.producer;
  */
 public interface Producer<T> {
 
-    void sendMessage(T data);
+    void sendEvent(T data);
 }

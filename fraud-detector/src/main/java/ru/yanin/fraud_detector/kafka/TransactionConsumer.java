@@ -32,7 +32,7 @@ public class TransactionConsumer {
         try {
             boolean isAlreadySaved = transactionExistenceChecker.isTransactionAlreadySavedWithRetry(event);
             if (!isAlreadySaved) {
-                manualReviewProducer.sendMessage(event);
+                manualReviewProducer.sendEvent(event);
                 return;
             }
             pipeline.flow(event);

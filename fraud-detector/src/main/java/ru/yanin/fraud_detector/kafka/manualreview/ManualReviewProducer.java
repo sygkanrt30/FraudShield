@@ -27,7 +27,7 @@ public class ManualReviewProducer implements Producer<TransactionEvent> {
     private String topic;
 
     @Override
-    public void sendMessage(TransactionEvent event) {
+    public void sendEvent(TransactionEvent event) {
         CompletableFuture.runAsync(() -> kafkaTemplate.send(topic, event), producerAlertExecutor)
                 .whenComplete((result, throwable) -> {
                     if (Objects.isNull(throwable)) {

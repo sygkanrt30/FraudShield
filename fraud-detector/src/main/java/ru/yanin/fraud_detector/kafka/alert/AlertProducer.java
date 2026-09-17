@@ -27,7 +27,7 @@ public class AlertProducer implements Producer<Alert> {
     private String topic;
 
     @Override
-    public void sendMessage(Alert alert) {
+    public void sendEvent(Alert alert) {
         CompletableFuture.runAsync(() -> kafkaTemplate.send(topic, alert), producerAlertExecutor)
                 .whenComplete((result, throwable) -> {
                     if (Objects.isNull(throwable)) {

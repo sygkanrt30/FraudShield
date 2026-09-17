@@ -83,7 +83,7 @@ class EventKafkaProducerTest extends BaseKafkaTest {
         TransactionEventWithTimer eventWithTimer = new TransactionEventWithTimer(event, sample);
 
         // Act
-        eventKafkaProducer.sendMessage(eventWithTimer);
+        eventKafkaProducer.sendEvent(eventWithTimer);
 
         // Assert
         verify(transactionRecordService, timeout(5000))
@@ -117,7 +117,7 @@ class EventKafkaProducerTest extends BaseKafkaTest {
         TransactionEventWithTimer eventWithTimer = new TransactionEventWithTimer(event, sample);
 
         // Act
-        failingProducer.sendMessage(eventWithTimer);
+        failingProducer.sendEvent(eventWithTimer);
 
         // Assert
         verify(transactionRecordService, timeout(5000))

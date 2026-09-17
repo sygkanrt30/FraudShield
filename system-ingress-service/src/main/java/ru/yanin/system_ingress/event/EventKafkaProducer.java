@@ -38,7 +38,7 @@ public class EventKafkaProducer implements Producer<TransactionEventWithTimer> {
     }
 
     @Override
-    public void sendMessage(TransactionEventWithTimer event) {
+    public void sendEvent(TransactionEventWithTimer event) {
         UUID transactionId = event.transactionEvent().transactionId();
         kafkaTemplate.send(rawTransactionsTopic, event.transactionEvent())
                 .whenComplete((result, throwable) -> {

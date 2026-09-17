@@ -80,7 +80,7 @@ class InsertionHandlerTest {
         verify(metrics).stopInsertTimer(sample);
         verify(stateStorage).markAsProcessed(stringTxId);
         verify(metrics).incrementProcessed();
-        verify(deadQueueProducer, never()).sendMessage(any());
+        verify(deadQueueProducer, never()).sendEvent(any());
         verify(stateStorage, never()).markAsDead(anyString());
         verify(metrics, never()).incrementFailed();
         verify(metrics, never()).incrementDeadQueue();
@@ -102,7 +102,7 @@ class InsertionHandlerTest {
         verify(metrics, never()).stopInsertTimer(sample);
         verify(stateStorage, never()).markAsProcessed(stringTxId);
         verify(metrics, never()).incrementProcessed();
-        verify(deadQueueProducer).sendMessage(event);
+        verify(deadQueueProducer).sendEvent(event);
         verify(stateStorage).markAsDead(stringTxId);
         verify(ack).acknowledge();
         verify(stateStorage).unlock(stringTxId);

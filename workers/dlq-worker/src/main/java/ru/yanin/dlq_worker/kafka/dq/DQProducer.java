@@ -30,7 +30,7 @@ public class DQProducer implements Producer<TransactionEvent> {
     private String topic;
 
     @Override
-    public void sendMessage(TransactionEvent event) {
+    public void sendEvent(TransactionEvent event) {
         metrics.incrementDeadQueue();
         var dqEvent = new DQTransactionEvent(event, Instant.now());
         CompletableFuture.runAsync(() -> kafkaTemplate.send(topic, dqEvent), producerTransactionsExecutor)

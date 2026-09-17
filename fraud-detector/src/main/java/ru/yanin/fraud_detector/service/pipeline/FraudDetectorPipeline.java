@@ -38,7 +38,7 @@ public class FraudDetectorPipeline implements Pipeline {
                     .findFirst()
                     .ifPresent(result -> {
                         Alert alert = alertResolver.resolve(transaction, result);
-                        alertProducer.sendMessage(alert);
+                        alertProducer.sendEvent(alert);
                     });
         } catch (Exception e) {
             throw new PipelineException(e.getMessage(), e);
