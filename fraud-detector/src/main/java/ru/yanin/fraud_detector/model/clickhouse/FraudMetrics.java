@@ -27,7 +27,6 @@ public class FraudMetrics {
     private int txCount;
     private BigDecimal avgCheque;
 
-    // anomalies
     private double weeklyGrowth;// (%)
     private int newRecipientsCount;
 

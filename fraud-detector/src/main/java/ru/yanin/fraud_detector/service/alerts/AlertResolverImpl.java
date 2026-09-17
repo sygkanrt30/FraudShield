@@ -10,7 +10,6 @@ import ru.yanin.shared.alert.AlertStatus;
 import ru.yanin.shared.alert.AlertType;
 import ru.yanin.shared.domain.TransactionEvent;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +42,7 @@ public class AlertResolverImpl implements AlertResolver {
         var status = overallRisk > HIGH_RISK_THRESHOLD ? AlertStatus.HIGH : AlertStatus.MEDIUM;
         String comment = resolveComment(alertType, reasons);
 
-        Alert alert = createAlert(transaction, alertType, status, overallRisk, comment);
+        Alert alert = AlertFabric.buildAlert(transaction, alertType, status, overallRisk, comment);
         log.debug("Resolved {} alert for transaction {}", alertType, transaction.transactionId());
         return alert;
     }
@@ -79,31 +78,5 @@ public class AlertResolverImpl implements AlertResolver {
                 .map(Enum::name)
                 .reduce((a, b) -> a + "," + b)
                 .orElse("");
-    }
-
-    private Alert createAlert(TransactionEvent transaction, AlertType alertType, AlertStatus status,
-                              double overallRisk, String comment) {
-        return Alert.builder()
-                .clientsInfo(Alert.ClientsInfo.builder()
-                        .fromClientId(transaction.from().id())
-                        .toClientId(transaction.to().id())
-                        .fromClientEmail(transaction.from().email())
-                        .toClientEmail(transaction.to().email())
-                        .fromClientName(transaction.from().fullName())
-                        .toClientName(transaction.to().fullName())
-                        .build())
-                .metadata(Alert.TransactionMetadata.builder()
-                        .txId(transaction.transactionId().toString())
-                        .amount(transaction.amount())
-                        .currency(transaction.currency().toString())
-                        .timestamp(transaction.createdAt())
-                        .build())
-                .alertType(alertType)
-                .status(status)
-                .riskScore(overallRisk)
-                .createdAt(Instant.now())
-                .source("FRAUD_DETECTOR")
-                .comment(comment)
-                .build();
     }
 }

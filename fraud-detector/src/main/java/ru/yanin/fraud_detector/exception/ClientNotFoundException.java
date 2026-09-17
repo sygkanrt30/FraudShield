@@ -5,11 +5,13 @@ package ru.yanin.fraud_detector.exception;
  */
 public class ClientNotFoundException extends RuntimeException {
 
+    private static final String DEFAULT_MESSAGE = "Client not found";
+
     public ClientNotFoundException(String message) {
         super(message);
     }
 
     public ClientNotFoundException() {
-        super("Client not found");
+        super(DEFAULT_MESSAGE);
     }
 }
