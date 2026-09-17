@@ -2,7 +2,6 @@ package ru.yanin.fraud_detector.service.detectors.fast;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yanin.fraud_detector.exception.ClientNotFoundException;
@@ -12,6 +11,7 @@ import ru.yanin.fraud_detector.service.detectors.Detector;
 import ru.yanin.fraud_detector.service.detectors.FraudStatus;
 import ru.yanin.fraud_detector.service.neo4j.ClientGraphReader;
 import ru.yanin.fraud_detector.service.pipeline.DetectorSolution;
+import ru.yanin.fraud_detector.service.pipeline.DetectorSolutionFabric;
 import ru.yanin.shared.domain.TransactionEvent;
 
 /**
@@ -33,23 +33,10 @@ public class Neo4jFastDetector implements Detector {
         FraudStatus fromClientStatus = getClientFraudStatus(from);
         FraudStatus toClientStatus = getClientFraudStatus(to);
 
-        boolean isNewRecipient = resolveIsNewRecipient(from, to);
-
-        return DetectorSolution.builder()
-                .from(DetectorSolution.ClientSolution.builder()
-                        .fraudStatus(fromClientStatus)
-                        .overallRisk(from.getOverallRisk().doubleValue())
-                        .newRecipient(false)
-                        .build())
-                .to(DetectorSolution.ClientSolution.builder()
-                        .fraudStatus(toClientStatus)
-                        .overallRisk(to.getOverallRisk().doubleValue())
-                        .newRecipient(isNewRecipient)
-                        .build())
-                .build();
+        return DetectorSolutionFabric.build(fromClientStatus, toClientStatus, from, to, resolveIsNewRecipient(from, to));
     }
 
-    private @NonNull Client extratToClient(TransactionEvent transaction, Client from) {
+    private Client extratToClient(TransactionEvent transaction, Client from) {
         return from.getTransactionsOut().stream()
                 .filter(transactionRel ->
                         transactionRel.getTransactionId().equals(transaction.transactionId()))

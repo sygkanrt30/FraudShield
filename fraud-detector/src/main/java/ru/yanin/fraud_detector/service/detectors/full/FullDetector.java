@@ -66,7 +66,7 @@ public class FullDetector implements Detector {
             putInFraudStatusMap(entry, riskScores);
         }
 
-        return DetectorSolutionFabric.of(
+        return DetectorSolutionFabric.build(
                 transaction.from().id(),
                 transaction.to().id(),
                 fraudStatusMap, riskScoresByClient,

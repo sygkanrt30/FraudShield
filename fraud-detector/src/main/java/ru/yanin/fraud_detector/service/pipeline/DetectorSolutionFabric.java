@@ -2,6 +2,7 @@ package ru.yanin.fraud_detector.service.pipeline;
 
 import ru.yanin.fraud_detector.dto.RiskScores;
 import ru.yanin.fraud_detector.model.clickhouse.FraudMetrics;
+import ru.yanin.fraud_detector.model.neo4j.Client;
 import ru.yanin.fraud_detector.service.detectors.FraudStatus;
 
 import java.util.Map;
@@ -12,14 +13,30 @@ import java.util.UUID;
  */
 public final class DetectorSolutionFabric {
 
-    public static DetectorSolution of(UUID fromId, UUID toId,
-                                       Map<UUID, FraudStatus> fraudStatusMap,
-                                       Map<UUID, RiskScores> riskScores,
-                                       Map<UUID, FraudMetrics> metrics) {
+    public static DetectorSolution build(UUID fromId, UUID toId,
+                                         Map<UUID, FraudStatus> fraudStatusMap,
+                                         Map<UUID, RiskScores> riskScores,
+                                         Map<UUID, FraudMetrics> metrics) {
 
         return DetectorSolution.builder()
                 .from(clientSolution(fromId, fraudStatusMap, riskScores, metrics))
                 .to(clientSolution(toId, fraudStatusMap, riskScores, metrics))
+                .build();
+    }
+
+    public static DetectorSolution build(FraudStatus fromClientStatus, FraudStatus toClientStatus,
+                                         Client from, Client to, boolean isNewRecipient) {
+        return DetectorSolution.builder()
+                .from(DetectorSolution.ClientSolution.builder()
+                        .fraudStatus(fromClientStatus)
+                        .overallRisk(from.getOverallRisk().doubleValue())
+                        .newRecipient(false)
+                        .build())
+                .to(DetectorSolution.ClientSolution.builder()
+                        .fraudStatus(toClientStatus)
+                        .overallRisk(to.getOverallRisk().doubleValue())
+                        .newRecipient(isNewRecipient)
+                        .build())
                 .build();
     }
 

@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 public class Neo4JHubProvider implements HubProvider {
 
     @Value("${detection.hub.threshold.lower}")
-    private Double hubLowerThreshold;
+    private double hubLowerThreshold;
     private final ClientNeo4jRepository clientRepository;
 
     @Override
