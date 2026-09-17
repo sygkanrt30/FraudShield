@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import ru.yanin.fraud_detector.service.neo4j.TransactionExistenceChecker;
 import ru.yanin.fraud_detector.service.pipeline.Pipeline;
 import ru.yanin.shared.domain.TransactionEvent;
+import ru.yanin.shared.producer.Producer;
 
 /**
  * @author Vyacheslav Yanin
@@ -19,6 +20,7 @@ public class TransactionConsumer {
 
     private final Pipeline pipeline;
     private final TransactionExistenceChecker transactionExistenceChecker;
+    private final Producer<TransactionEvent> manualReviewProducer;
 
     @KafkaListener(
             groupId = "${spring.kafka.consumer.group-id}",
@@ -30,7 +32,7 @@ public class TransactionConsumer {
         try {
             boolean isAlreadySaved = transactionExistenceChecker.isTransactionAlreadySavedWithRetry(event);
             if (!isAlreadySaved) {
-                //send to manual review
+                manualReviewProducer.sendMessage(event);
                 return;
             }
             pipeline.flow(event);

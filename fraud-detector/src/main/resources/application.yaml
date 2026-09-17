@@ -51,6 +51,7 @@ app:
     topics:
       raw-transactions: raw-transactions
       alert: fraud-alerts
+      manual-review: manual-review
 
 
 executor:
