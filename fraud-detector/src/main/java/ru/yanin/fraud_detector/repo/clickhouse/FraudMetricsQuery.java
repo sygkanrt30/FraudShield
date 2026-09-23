@@ -13,7 +13,7 @@ import lombok.experimental.Accessors;
 enum FraudMetricsQuery {
 
     GET_FRAUD_METRICS_QUERY("SELECT * FROM fraud_metrics " +
-            "WHERE calculatedAt >= now() - INTERVAL '1 HOUR' HOUR " +
+            "WHERE calculatedAt >= now() - INTERVAL 1 HOUR " +
             "AND clientId IN (:clientIds)"),
 
     CALCULATE_FRAUD_METRICS_QUERY("""
@@ -72,7 +72,7 @@ enum FraudMetricsQuery {
                 dm.txCount,
                 dm.avgCheque,
                 if(wg.prevWeekSent > 0,
-                   round((wg.thisWeekSent - wg.prevWeekSent) / wg.prevWeekSent * 100, 2),
+                   toFloat64(round((wg.thisWeekSent - wg.prevWeekSent) / wg.prevWeekSent * 100, 2)),
                    0.0) AS weeklyGrowth,
                 ifNull(nr.newRecipientsCount, 0) AS newRecipientsCount,
                 now() AS calculatedAt

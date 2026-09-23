@@ -26,15 +26,18 @@ public final class DetectorSolutionFabric {
 
     public static DetectorSolution build(FraudStatus fromClientStatus, FraudStatus toClientStatus,
                                          Client from, Client to, boolean isNewRecipient) {
+
+        double fromOverallRisk = from.getOverallRisk() != null ? from.getOverallRisk().doubleValue() : 0.0;
+        double toOverallRisk = to.getOverallRisk() != null ? to.getOverallRisk().doubleValue() : 0.0;
         return DetectorSolution.builder()
                 .from(DetectorSolution.ClientSolution.builder()
                         .fraudStatus(fromClientStatus)
-                        .overallRisk(from.getOverallRisk().doubleValue())
+                        .overallRisk(fromOverallRisk)
                         .newRecipient(false)
                         .build())
                 .to(DetectorSolution.ClientSolution.builder()
                         .fraudStatus(toClientStatus)
-                        .overallRisk(to.getOverallRisk().doubleValue())
+                        .overallRisk(toOverallRisk)
                         .newRecipient(isNewRecipient)
                         .build())
                 .build();

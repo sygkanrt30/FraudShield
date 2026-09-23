@@ -22,6 +22,19 @@ public interface ClientNeo4jRepository extends Neo4jRepository<Client, Long> {
     Optional<Client> findClientByClientId(UUID clientId);
 
     @Query("""
+        CALL gds.graph.exists('transactions-graph') YIELD exists
+        RETURN exists
+        """)
+    boolean transactionsGraphExists();
+
+    @Query("""
+        CALL gds.graph.project('transactions-graph', 'Client', 'MADE_TRANSACTION')
+        YIELD graphName
+        RETURN graphName
+        """)
+    void projectTransactionsGraph();
+
+    @Query("""
         CALL gds.pageRank.stream('transactions-graph', {
             dampingFactor: 0.85,
             maxIterations: 20
@@ -29,7 +42,7 @@ public interface ClientNeo4jRepository extends Neo4jRepository<Client, Long> {
         YIELD nodeId, score
         WITH gds.util.asNode(nodeId) AS node, score
         WHERE score > 0.1
-        RETURN node.id AS nodeId, score
+        RETURN node.clientId AS clientId, score
         """)
     Set<PageRankResult> getPageRankResults();
 }

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yanin.fraud_detector.exception.NoHubsException;
 import ru.yanin.fraud_detector.exception.PipelineException;
 import ru.yanin.fraud_detector.service.alerts.AlertResolver;
 import ru.yanin.fraud_detector.service.detectors.Detector;
@@ -40,6 +41,8 @@ public class FraudDetectorPipeline implements Pipeline {
                         Alert alert = alertResolver.resolve(transaction, result);
                         alertProducer.sendEvent(alert);
                     });
+        } catch (NoHubsException e) {
+            throw e;
         } catch (Exception e) {
             throw new PipelineException(e.getMessage(), e);
         }

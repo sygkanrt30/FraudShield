@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Component;
+import ru.yanin.fraud_detector.exception.NoHubsException;
 import ru.yanin.fraud_detector.service.neo4j.TransactionExistenceChecker;
 import ru.yanin.fraud_detector.service.pipeline.Pipeline;
 import ru.yanin.shared.domain.TransactionEvent;
@@ -36,6 +37,9 @@ public class TransactionConsumer {
                 return;
             }
             pipeline.flow(event);
+            ack.acknowledge();
+        } catch (NoHubsException e) {
+            log.info(e.getMessage());
             ack.acknowledge();
         } catch (Exception e) {
             log.error("Failed event with id {} cause: {}", event.transactionId(), e.getMessage(), e);
