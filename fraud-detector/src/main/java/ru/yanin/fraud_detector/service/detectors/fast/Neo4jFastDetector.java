@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yanin.fraud_detector.exception.ClientNotFoundException;
+import ru.yanin.fraud_detector.exception.TransactionRelationNotFoundException;
 import ru.yanin.fraud_detector.model.neo4j.Client;
 import ru.yanin.fraud_detector.model.neo4j.TransactionRel;
 import ru.yanin.fraud_detector.service.detectors.Detector;
@@ -23,26 +23,31 @@ import ru.yanin.shared.domain.TransactionEvent;
 @Qualifier("Neo4jFastDetector")
 public class Neo4jFastDetector implements Detector {
 
+    private static final int NEW_RECIPIENT_TRANSACTIONS_LIMIT = 2;
+
     private final ClientGraphReader clientGraphReader;
 
     @Override
     public DetectorSolution detect(TransactionEvent transaction) {
         Client from = clientGraphReader.getClientById(transaction.from().id());
-        Client to = extratToClient(transaction, from);
+        Client to = extractToClient(transaction, from);
 
         FraudStatus fromClientStatus = getClientFraudStatus(from);
         FraudStatus toClientStatus = getClientFraudStatus(to);
 
-        return DetectorSolutionFabric.build(fromClientStatus, toClientStatus, from, to, resolveIsNewRecipient(from, to));
+        return DetectorSolutionFabric.build(fromClientStatus, toClientStatus, from, to,
+                isFirstTransferToRecipient(from, to));
     }
 
-    private Client extratToClient(TransactionEvent transaction, Client from) {
+    private Client extractToClient(TransactionEvent transaction, Client from) {
         return from.getTransactionsOut().stream()
                 .filter(transactionRel ->
-                        transactionRel.getTransactionId().equals(transaction.transactionId()))
+                        transaction.transactionId().equals(transactionRel.getTransactionId()))
                 .map(TransactionRel::getTarget)
                 .findFirst()
-                .orElseThrow(() -> new ClientNotFoundException("Client not found with id " + transaction.to().id()));
+                .orElseThrow(() -> new TransactionRelationNotFoundException(
+                        "Transaction " + transaction.transactionId()
+                                + " not found in outgoing transactions of client " + from.getClientId()));
     }
 
     private FraudStatus getClientFraudStatus(Client client) {
@@ -52,11 +57,11 @@ public class Neo4jFastDetector implements Detector {
         return FraudStatus.LOW;
     }
 
-    private boolean resolveIsNewRecipient(Client from, Client to) {
+    private boolean isFirstTransferToRecipient(Client from, Client to) {
         return from.getTransactionsOut().stream()
                 .filter(transactionRel ->
-                        transactionRel.getTarget().getClientId().equals(to.getClientId()))
-                .toList()
-                .size() <= 1;
+                        to.getClientId().equals(transactionRel.getTarget().getClientId()))
+                .limit(NEW_RECIPIENT_TRANSACTIONS_LIMIT)
+                .count() < NEW_RECIPIENT_TRANSACTIONS_LIMIT;
     }
 }

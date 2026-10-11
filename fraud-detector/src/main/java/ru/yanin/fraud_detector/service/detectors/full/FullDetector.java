@@ -40,9 +40,6 @@ public class FullDetector implements Detector {
     private final Neo4jLabelUpdater labelUpdater;
     private final ClickHouseStatusUpdater clickhouseUpdater;
 
-    private final Map<UUID, FraudStatus> fraudStatusMap = new HashMap<>();
-    private final Map<UUID, RiskScores> riskScoresByClient = new HashMap<>();
-
     @Override
     @Transactional
     public DetectorSolution detect(TransactionEvent transaction) {
@@ -52,7 +49,8 @@ public class FullDetector implements Detector {
         FraudMetricsByClient metricsByClient = fraudMetricsService
                 .getOrCalculateMetrics(transaction.from(), transaction.to(),hubs);
 
-        resetState();
+        var fraudStatusMap = new HashMap<UUID, FraudStatus>();
+        var riskScoresByClient = new HashMap<UUID, RiskScores>();
 
         for (Map.Entry<UUID, FraudMetrics> entry : metricsByClient.clients().entrySet()) {
             RiskScores riskScores = riskCalculator.compute(entry.getValue());
@@ -63,7 +61,7 @@ public class FullDetector implements Detector {
             clickhouseUpdater.updateStatus(transaction, riskScores);
 
             riskScoresByClient.put(entry.getKey(), riskScores);
-            putInFraudStatusMap(entry, riskScores);
+            putInFraudStatusMap(entry, riskScores, fraudStatusMap);
         }
 
         return DetectorSolutionFabric.build(
@@ -73,12 +71,8 @@ public class FullDetector implements Detector {
                 metricsByClient.clients());
     }
 
-    private void resetState() {
-        fraudStatusMap.clear();
-        riskScoresByClient.clear();
-    }
-
-    private void putInFraudStatusMap(Map.Entry<UUID, FraudMetrics> entry, RiskScores riskScores) {
+    private void putInFraudStatusMap(Map.Entry<UUID, FraudMetrics> entry, RiskScores riskScores,
+                                     Map<UUID, FraudStatus> fraudStatusMap) {
         var status = switch (riskScores.riskCategory()) {
             case FRAUDSTER -> FraudStatus.HIGH;
             case VICTIM, MIXED -> FraudStatus.MEDIUM;
