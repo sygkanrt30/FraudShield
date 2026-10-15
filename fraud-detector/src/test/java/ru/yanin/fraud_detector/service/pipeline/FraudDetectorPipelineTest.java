@@ -70,6 +70,7 @@ class FraudDetectorPipelineTest {
         pipeline.flow(transaction);
 
         // Assert
+        verify(fullDetector, never()).detect(any());
         verify(alertProducer).sendEvent(alert);
     }
 
@@ -86,6 +87,21 @@ class FraudDetectorPipelineTest {
 
         // Assert
         verify(fullDetector, never()).detect(any());
+    }
+
+    @Test
+    void shouldInvokeFullDetector_WhenFastDetectorNeedsNoAlert() {
+        var fastSolution = Instancio.create(DetectorSolution.class);
+        when(fastDetector.detect(transaction)).thenReturn(fastSolution);
+        when(alertResolver.isAlertNeeded(fastSolution)).thenReturn(false);
+        when(fullDetector.detect(transaction)).thenReturn(Instancio.create(DetectorSolution.class));
+
+        // Act
+        pipeline.flow(transaction);
+
+        // Assert
+        verify(fastDetector).detect(transaction);
+        verify(fullDetector).detect(transaction);
     }
 
     @Test
@@ -117,6 +133,7 @@ class FraudDetectorPipelineTest {
         pipeline.flow(transaction);
 
         // Assert
+        verify(fullDetector).detect(transaction);
         verify(alertResolver, never()).resolve(any(), any());
         verifyNoInteractions(alertProducer);
     }
@@ -126,8 +143,11 @@ class FraudDetectorPipelineTest {
         var noHubs = new NoHubsException("No hub clients found");
         when(fastDetector.detect(transaction)).thenThrow(noHubs);
 
-        // Act & Assert
+        // Act
         assertThatThrownBy(() -> pipeline.flow(transaction)).isSameAs(noHubs);
+
+        // Assert
+        verify(fullDetector, never()).detect(any());
     }
 
     @Test
@@ -146,11 +166,14 @@ class FraudDetectorPipelineTest {
         var cause = new IllegalStateException("Neo4j unavailable");
         when(fastDetector.detect(transaction)).thenThrow(cause);
 
-        // Act & Assert
+        // Act
         assertThatThrownBy(() -> pipeline.flow(transaction))
                 .isInstanceOf(PipelineException.class)
                 .hasMessage(cause.getMessage())
                 .hasCause(cause);
+
+        // Assert
+        verify(fullDetector, never()).detect(any());
     }
 
     @Test
@@ -161,11 +184,14 @@ class FraudDetectorPipelineTest {
         when(alertResolver.isAlertNeeded(solution)).thenReturn(true);
         when(alertResolver.resolve(transaction, solution)).thenThrow(cause);
 
-        // Act & Assert
+        // Act
         assertThatThrownBy(() -> pipeline.flow(transaction))
                 .isInstanceOf(PipelineException.class)
                 .hasMessage(cause.getMessage())
                 .hasCause(cause);
+
+        // Assert
+        verify(fullDetector, never()).detect(any());
     }
 
     @Test
@@ -178,9 +204,12 @@ class FraudDetectorPipelineTest {
         when(alertResolver.resolve(transaction, solution)).thenReturn(alert);
         doThrow(cause).when(alertProducer).sendEvent(alert);
 
-        // Act & Assert
+        // Act
         assertThatThrownBy(() -> pipeline.flow(transaction))
                 .isInstanceOf(PipelineException.class)
                 .hasCause(cause);
+
+        // Assert
+        verify(fullDetector, never()).detect(any());
     }
 }
