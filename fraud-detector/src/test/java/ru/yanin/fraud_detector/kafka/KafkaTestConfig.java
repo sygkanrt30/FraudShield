@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.serializer.JsonDeserializer;
-import org.springframework.kafka.support.serializer.JsonSerializer;
+import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
+import org.springframework.kafka.support.serializer.JacksonJsonSerializer;
 import ru.yanin.shared.alert.Alert;
 import ru.yanin.shared.domain.TransactionEvent;
 
@@ -53,12 +53,11 @@ public class KafkaTestConfig {
         return Executors.newFixedThreadPool(2);
     }
 
-    @SuppressWarnings({"removal"})
     private Map<String, Object> producerProps() {
         return Map.of(
                 ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, BaseKafkaTest.getBootstrapServers(),
                 ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class,
-                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class,
+                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JacksonJsonSerializer.class,
                 ProducerConfig.ACKS_CONFIG, "all",
                 ProducerConfig.RETRIES_CONFIG, 3,
                 ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true,
@@ -66,16 +65,15 @@ public class KafkaTestConfig {
         );
     }
 
-    @SuppressWarnings({"removal"})
     private Map<String, Object> consumerProps(Class<?> valueType) {
         return Map.of(
                 ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, BaseKafkaTest.getBootstrapServers(),
                 ConsumerConfig.GROUP_ID_CONFIG, GROUP_ID_PREFIX + UUID.randomUUID(),
                 ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest",
                 ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
-                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class,
-                JsonDeserializer.TRUSTED_PACKAGES, "*",
-                JsonDeserializer.VALUE_DEFAULT_TYPE, valueType.getName()
+                ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JacksonJsonDeserializer.class,
+                JacksonJsonDeserializer.TRUSTED_PACKAGES, "*",
+                JacksonJsonDeserializer.VALUE_DEFAULT_TYPE, valueType.getName()
         );
     }
 }
